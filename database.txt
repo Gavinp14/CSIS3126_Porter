@@ -1,0 +1,166 @@
+-- Users table (base table for both clients and trainers)
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    profile_picture VARCHAR(255),
+    phone VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Trainers table
+CREATE TABLE trainers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    bio TEXT,
+    years_experience INT,
+    hourly_rate DECIMAL(10,2),
+    specialization VARCHAR(100),
+    certification_details TEXT,
+    is_premium BOOLEAN DEFAULT FALSE,
+    rating DECIMAL(3,2),
+    gender VARCHAR(20),
+    date_of_birth DATE,
+    subscription_status ENUM('basic', 'premium') DEFAULT 'basic',
+    subscription_expiry DATE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Clients table
+CREATE TABLE clients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    height DECIMAL(5,2),
+    weight DECIMAL(5,2),
+    fitness_goals TEXT,
+    health_conditions TEXT,
+    fitness_level ENUM('beginner', 'intermediate', 'advanced'),
+    date_of_birth DATE,
+    gender VARCHAR(20),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Training relationships (connects clients with trainers)
+CREATE TABLE training_relationships (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT NOT NULL,
+    trainer_id INT NOT NULL,
+    status ENUM('pending', 'active', 'completed', 'cancelled') DEFAULT 'pending',
+    start_date DATE,
+    end_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
+    FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE CASCADE
+);
+
+-- Workout plans
+CREATE TABLE workout_plans (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    training_relationship_id INT NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    description TEXT,
+    start_date DATE,
+    end_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (training_relationship_id) REFERENCES training_relationships(id) ON DELETE CASCADE
+);
+
+-- Workout exercises
+CREATE TABLE workout_exercises (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    workout_plan_id INT NOT NULL,
+    exercise_name VARCHAR(100) NOT NULL,
+    sets INT,
+    reps INT,
+    duration_minutes INT,
+    notes TEXT,
+    day_of_week ENUM('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'),
+    FOREIGN KEY (workout_plan_id) REFERENCES workout_plans(id) ON DELETE CASCADE
+);
+
+-- Nutrition plans
+CREATE TABLE nutrition_plans (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    training_relationship_id INT NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    description TEXT,
+    daily_calories INT,
+    protein_grams INT,
+    carbs_grams INT,
+    fat_grams INT,
+    start_date DATE,
+    end_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (training_relationship_id) REFERENCES training_relationships(id) ON DELETE CASCADE
+);
+
+-- Meals
+CREATE TABLE meals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nutrition_plan_id INT NOT NULL,
+    meal_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    calories INT,
+    protein_grams INT,
+    carbs_grams INT,
+    fat_grams INT,
+    meal_time TIME,
+    day_of_week ENUM('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'),
+    FOREIGN KEY (nutrition_plan_id) REFERENCES nutrition_plans(id) ON DELETE CASCADE
+);
+
+-- Progress tracking
+CREATE TABLE progress_tracking (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT NOT NULL,
+    weight DECIMAL(5,2),
+    body_fat_percentage DECIMAL(4,2),
+    chest_cm DECIMAL(5,2),
+    waist_cm DECIMAL(5,2),
+    hips_cm DECIMAL(5,2),
+    arms_cm DECIMAL(5,2),
+    thighs_cm DECIMAL(5,2),
+    measurement_date DATE NOT NULL,
+    notes TEXT,
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
+);
+
+-- Messages
+CREATE TABLE messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    message_text TEXT NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    read_at TIMESTAMP NULL,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Payments
+CREATE TABLE payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    training_relationship_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    status ENUM('pending', 'completed', 'failed', 'refunded') DEFAULT 'pending',
+    payment_date TIMESTAMP,
+    due_date DATE,
+    stripe_payment_id VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (training_relationship_id) REFERENCES training_relationships(id) ON DELETE CASCADE
+);
+
+-- Trainer availability
+CREATE TABLE trainer_availability (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    trainer_id INT NOT NULL,
+    day_of_week ENUM('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday') NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE CASCADE
+);
