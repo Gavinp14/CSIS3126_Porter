@@ -1,0 +1,39 @@
+/* Center the content in the middle of the screen */
+.main-container {
+    height: 90vh;
+  }
+  
+  .signup-container {
+    background-color: #ffffff;
+  }
+  
+  .bw-logo {
+    display: flex;
+    width: 250px;
+    height: 250px;
+  }
+  
+  .form-label {
+    font-weight: bold;
+  }
+  
+  input.form-control {
+    border-radius: 0.375rem;
+    box-shadow: none;
+    margin-bottom: 15px;
+  }
+  
+  
+  h6 {
+    font-size: 0.9rem;
+  }
+  
+  h6 a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  h6 a:hover {
+    text-decoration: underline;
+  }
+  
