@@ -10,7 +10,7 @@ function SignupComponent() {
         className="bw-logo"
       />
       <div
-        className="login-container form-group p-4 rounded shadow-lg"
+        className="signup-container form-group p-4 rounded shadow-lg"
         style={{ maxWidth: '500px', width: '100%', backgroundColor: '#fff' }}
       >
         <h1 className="text-center mb-4">Create Account</h1>
@@ -116,7 +116,7 @@ function SignupComponent() {
         </div>
 
         <h6 className="text-center">
-          Already have an account? <a href="/">login here</a>
+          Already have an account? <a href="/">Login here</a>
         </h6>
       </div>
     </div>

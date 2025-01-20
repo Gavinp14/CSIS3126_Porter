@@ -1,0 +1,13 @@
+.navbar-logo img {
+    height: 60px; /* Adjust to make the logo larger */
+    width: auto; /* Maintain aspect ratio */
+     /* Center align the logo vertically if needed */
+  }
+
+.navbar-logo img:hover{
+    cursor: pointer;
+}
+  
+  .navbar {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+  }
