@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
 import {Settings} from 'lucide-react'
-import "./clientnav.css"
+import "./trainernavbar.css"
 
-function ClientNavbar() {
+function TrainerNavbar() {
     const [isOpen, setIsOpen] = useState(false);
     return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -28,22 +28,22 @@ function ClientNavbar() {
         <div className={`collapse navbar-collapse ${isOpen ? 'show' : ''}`} id="navbarNav">
           <ul className="navbar-nav mx-auto">
             <li className="nav-item px-2">
-              <a className="nav-link active" href="/client//dashboard">
+              <a className="nav-link active" href="/trainer/dashboard">
                 Dashboard
               </a>
             </li>
             <li className="nav-item px-2">
-              <a className="nav-link" href="/client/programs">
+              <a className="nav-link" href="/trainer/programs">
                 Programs
               </a>
             </li>
             <li className="nav-item px-2">
-              <a className="nav-link" href="/client/trainers">
-                Find Trainers
+              <a className="nav-link" href="/trainer/clients">
+                My Clients
               </a>
             </li>
             <li className="nav-item px-2">
-              <a className="nav-link" href="/client/messages">
+              <a className="nav-link" href="/trainer/messages">
                 Messages
               </a>
             </li>
@@ -55,4 +55,4 @@ function ClientNavbar() {
   );
 }
 
-export default ClientNavbar
+export default TrainerNavbar

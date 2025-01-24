@@ -1,15 +1,13 @@
 import React from 'react'
 import ClientNavbar from '../components/navbars/clientnav/ClientNavbar'
 
-function Trainers() {
+function ClientPrograms() {
   return (
     <>
       <ClientNavbar/>
-      <div>
-        <h1>Trainers Page</h1>
-      </div>
+      <h1>Workouts page</h1>
     </>
   )
 }
 
-export default Trainers
+export default ClientPrograms

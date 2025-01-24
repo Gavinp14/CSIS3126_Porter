@@ -1,15 +1,14 @@
 import React from 'react'
 import ClientNavbar from '../components/navbars/clientnav/ClientNavbar'
 
-function Trainers() {
+function ClientDashboard() {
   return (
     <>
-      <ClientNavbar/>
-      <div>
-        <h1>Trainers Page</h1>
+      <ClientNavbar />
+      <div className="container">
       </div>
     </>
   )
 }
 
-export default Trainers
+export default ClientDashboard
