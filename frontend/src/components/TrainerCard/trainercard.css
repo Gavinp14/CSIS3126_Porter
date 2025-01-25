@@ -1,0 +1,46 @@
+/* TrainerCard.css */
+
+/* Card container styles */
+.trainer-card {
+    width: 100%;
+    margin: 1rem auto;
+    position: relative;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Profile picture circle */
+  .trainer-card__image-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .trainer-card__image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Modal profile image */
+  .trainer-card__modal-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+  }
+  
+  /* Read more button */
+  .trainer-card__read-more {
+    text-decoration: underline;
+    padding: 0;
+  }
+  
+  /* Card body styles */
+  .trainer-card__body {
+    padding-top: 20px;
+  }
+  

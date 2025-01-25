@@ -1,0 +1,6 @@
+.conversation-container {
+    
+    width: 100%; /* Adjust the width to take up most of the side */
+    height: 70vh; /* Adjust the height to take up most of the viewport height */
+    margin: 0 auto; /* Center the container horizontally */
+}

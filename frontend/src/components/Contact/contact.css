@@ -1,0 +1,8 @@
+.contact{
+    border-bottom: 1px solid grey;
+}
+
+.contact:hover{
+    cursor: pointer;
+    background-color: lightgray;
+}
