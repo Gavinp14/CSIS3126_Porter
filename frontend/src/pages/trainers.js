@@ -7,15 +7,19 @@ function Trainers() {
   return (
     <>
       <ClientNavbar />
+      
       <div className="container-fluid">
-        <div className="row">
+        <div className="row g-4">
           {/* Left side - Criteria Filter */}
-          <div className="col-sm-4 mt-3 mb-3">
-            <CriteriaFilter /> {/* Add your filter component here */}
+          <div className="col-sm-4">
+            <CriteriaFilter />
           </div>
+
           {/* Right side - Trainers Table */}
-          <div className="col-sm-8 mt-3 mb-3">
-            <TrainersTable />
+          <div className="col-sm-8">
+            <div className="pt-3">
+              <TrainersTable />
+            </div>
           </div>
         </div>
       </div>

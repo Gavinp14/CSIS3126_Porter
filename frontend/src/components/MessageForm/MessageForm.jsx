@@ -1,11 +1,18 @@
 import React from 'react';
+import Message from '../Message/Message';
 import "./messageform.css"
 
 function MessageForm() {
   return (
     <div className="container form-container">
-      <h3 className="px-4 py-4 text-center">Conversation with John Doe</h3>
+      <h3 className="px-4 py-4 mt-3 text-center">Conversation with John Doe</h3>
       <div className="conversation-container">
+        <div className="row">
+          <div className="col-12">
+            <Message isSender={false} />
+            <Message isSender={true} />
+          </div>
+        </div>
       </div>
       <div className="text-box-container">
         <form>

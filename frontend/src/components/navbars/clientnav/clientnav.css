@@ -6,10 +6,9 @@
 }
 
 .navbar-logo img {
-    height: 60px; /* Adjust to make the logo larger */
-    width: auto; /* Maintain aspect ratio */
-     /* Center align the logo vertically if needed */
-  }
+    height: 80px;
+    width: auto;
+}
 
 .navbar-logo img:hover{
     cursor: pointer;

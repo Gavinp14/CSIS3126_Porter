@@ -1,11 +1,14 @@
 import React from 'react'
 import ClientNavbar from '../components/navbars/clientnav/ClientNavbar'
+import ProgramTable from '../components/ProgramTable/ProgramTable'
 
 function ClientPrograms() {
   return (
     <>
       <ClientNavbar/>
-      <h1>Workouts page</h1>
+      <div className='container pt-5'>
+        <ProgramTable/>
+      </div>
     </>
   )
 }

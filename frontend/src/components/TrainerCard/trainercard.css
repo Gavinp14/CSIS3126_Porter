@@ -44,3 +44,19 @@
     padding-top: 20px;
   }
   
+  .trainer-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .trainer-card__actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .trainer-card__message {
+    padding: 0.25rem 0.75rem;
+  }
+  

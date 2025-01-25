@@ -28,10 +28,17 @@ function TrainerCard() {
         <h5 className="card-title">{name}</h5>
         <h6 className="card-subtitle mb-2 text-muted">{specialty}</h6>
         <p className="card-text">{description}</p>
-        <p className="card-text"><strong>Location:</strong> {location}</p>
-        <Button variant="link" onClick={handleShow} className="trainer-card__read-more">
-          Read More
-        </Button>
+        <div className="trainer-card__footer">
+          <p className="card-text mb-0"><strong>Location:</strong> {location}</p>
+          <div className="trainer-card__actions">
+            <Button variant="link" onClick={handleShow} className="trainer-card__read-more">
+              Read More
+            </Button>
+            <Button variant="primary" className="trainer-card__message">
+              Message
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Modal for Read More */}

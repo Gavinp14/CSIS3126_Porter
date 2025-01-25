@@ -5,7 +5,7 @@ import "./trainernavbar.css"
 function TrainerNavbar() {
     const [isOpen, setIsOpen] = useState(false);
     return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
       <div className="container">
         {/* Logo */}
         <a className="navbar-logo" href="/dashboard">

@@ -5,10 +5,10 @@ import "./clientnav.css"
 function ClientNavbar() {
     const [isOpen, setIsOpen] = useState(false);
     return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
       <div className="container">
         {/* Logo */}
-        <a className="navbar-logo" href="/dashboard">
+        <a className="navbar-logo" href="/client/dashboard">
           <img src="/white_on_trans.png" alt="Logo" />
         </a>
 
@@ -28,7 +28,7 @@ function ClientNavbar() {
         <div className={`collapse navbar-collapse ${isOpen ? 'show' : ''}`} id="navbarNav">
           <ul className="navbar-nav mx-auto">
             <li className="nav-item px-2">
-              <a className="nav-link active" href="/client//dashboard">
+              <a className="nav-link active" href="/client/dashboard">
                 Dashboard
               </a>
             </li>
