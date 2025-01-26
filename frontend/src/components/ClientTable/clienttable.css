@@ -1,0 +1,22 @@
+.client-table {
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.search-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.search-input {
+  border-radius: 25px;
+  padding: 12px 24px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}

@@ -1,11 +1,20 @@
 import React from 'react'
 import TrainerNavbar from '../components/navbars/trainernav/TrainerNavbar'
+import MessageTable from '../components/MessageTable/MessageTable'
+import MessageForm from '../components/MessageForm/MessageForm'
 
 function TrainerMessages() {
   return (
     <>
       <TrainerNavbar/>
-      <h1>Trainer Messages</h1>
+      <div className="row">
+        <div className="col-sm-4">
+          <MessageTable />
+        </div>
+        <div className="col-sm-8">
+          <MessageForm />
+        </div>
+      </div>
     </>
   )
 }
