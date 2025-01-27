@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import "./progresschart.css";
+import LineChartComponent from '../../LineChartComponent/LineChartComponent';
 
 function ProgressChart() {
   const [viewMode, setViewMode] = useState('month'); // 'month' or 'day'
@@ -49,6 +50,11 @@ function ProgressChart() {
       : date.toLocaleDateString();
   };
 
+  const chartLines = [
+    { dataKey: 'weight', name: 'Weight (kg)', color: '#8884d8' },
+    { dataKey: 'bodyFat', name: 'Body Fat %', color: '#82ca9d' }
+  ];
+
   return (
     <div className="progress-chart-card">
       <h2>Progress Tracking</h2>
@@ -66,50 +72,14 @@ function ProgressChart() {
           Daily View
         </button>
       </div>
-      <div className="chart-container">
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart 
-            data={data} 
-            margin={{ top: 20, right: 30, left: 20, bottom: 65 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
-              tickFormatter={formatXAxis}
-              label={{ 
-                value: viewMode === 'month' ? 'Month' : 'Date', 
-                position: 'bottom',
-                offset: 0
-              }}
-            />
-            <YAxis label={{ value: 'Value', angle: -90, position: 'insideLeft' }} />
-            <Tooltip />
-            <Legend 
-              verticalAlign="bottom" 
-              height={36} 
-              wrapperStyle={{
-                bottom: 20,
-                left: '50%',
-                transform: 'translateX(-50%)'
-              }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="weight" 
-              name="Weight (kg)" 
-              stroke="#8884d8" 
-              activeDot={{ r: 8 }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="bodyFat" 
-              name="Body Fat %" 
-              stroke="#82ca9d" 
-              activeDot={{ r: 8 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      
+      <LineChartComponent 
+        data={data}
+        lines={chartLines}
+        xAxisLabel={viewMode === 'month' ? 'Month' : 'Date'}
+        yAxisLabel="Value"
+        formatXAxis={formatXAxis}
+      />
 
       <div className="data-input-section">
         <h3>Add New Entry</h3>
