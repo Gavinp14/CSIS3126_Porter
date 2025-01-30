@@ -60,13 +60,13 @@ function ProgressChart() {
       <h2>Progress Tracking</h2>
       <div className="view-mode-toggle">
         <button 
-          className={viewMode === 'month' ? 'active' : ''} 
+          className={`btn-primary ${viewMode === 'month' ? 'active' : ''}`}
           onClick={() => setViewMode('month')}
         >
           Monthly View
         </button>
         <button 
-          className={viewMode === 'day' ? 'active' : ''} 
+          className={`btn-primary ${viewMode === 'day' ? 'active' : ''}`}
           onClick={() => setViewMode('day')}
         >
           Daily View
@@ -122,7 +122,7 @@ function ProgressChart() {
               />
             </label>
           </div>
-          <button type="submit">Add Entry</button>
+          <button className="btn btn-primary" type="submit">Add Entry</button>
         </form>
       </div>
     </div>

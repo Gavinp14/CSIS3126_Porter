@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PopupModal from '../PopupModal/PopupModal';
 import "./clientcard.css";
 
 function ClientCard() {
@@ -45,27 +46,22 @@ function ClientCard() {
         </div>
       </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
-            <div className="modal-body">
-              <img 
-                src={client.profilePicture} 
-                alt={`${client.name}'s profile`} 
-                className="modal-profile-pic"
-              />
-              <h2>{client.name}</h2>
-              <div className="client-details">
-                <p><strong>Age:</strong> {client.age}</p>
-                <p><strong>Gender:</strong> {client.gender}</p>
-                <p><strong>Location:</strong> {client.location}</p>
-                <p><strong>Fitness Goals:</strong> {client.fitnessGoals}</p>
-              </div>
-            </div>
+      <PopupModal isOpen={showModal} onClose={() => setShowModal(false)}>
+        <div className="modal-body">
+          <img 
+            src={client.profilePicture} 
+            alt={`${client.name}'s profile`} 
+            className="modal-profile-pic"
+          />
+          <h2>{client.name}</h2>
+          <div className="client-details">
+            <p><strong>Age:</strong> {client.age}</p>
+            <p><strong>Gender:</strong> {client.gender}</p>
+            <p><strong>Location:</strong> {client.location}</p>
+            <p><strong>Fitness Goals:</strong> {client.fitnessGoals}</p>
           </div>
         </div>
-      )}
+      </PopupModal>
     </>
   );
 }

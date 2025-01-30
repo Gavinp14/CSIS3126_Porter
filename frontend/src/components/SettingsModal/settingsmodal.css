@@ -1,0 +1,43 @@
+.settings-container {
+  padding: 20px;
+}
+
+.user-info {
+  margin: 20px 0;
+}
+
+.info-row {
+  margin: 10px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.info-row label {
+  font-weight: bold;
+  min-width: 120px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.delete-account-btn {
+  padding: 8px 16px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-account-btn:hover {
+  background-color: #ff0000;
+}

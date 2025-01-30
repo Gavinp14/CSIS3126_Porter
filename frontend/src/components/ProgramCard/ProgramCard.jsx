@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PopupModal from '../PopupModal/PopupModal';
 import "./programcard.css";
 
 function ProgramCard() {
@@ -30,20 +31,18 @@ function ProgramCard() {
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="close-button" onClick={handleCloseModal}>×</button>
-            <h2>{programData.title}</h2>
-            <img src={programData.image} alt={programData.title} className="modal-image" />
-            <p className="description">{programData.description}</p>
-            <p className="author">Created by: {programData.author}</p>
-            <a href={programData.downloadLink} className="download-button" download>
-              Download Program
-            </a>
-          </div>
-        </div>
-      )}
+      <PopupModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      >
+        <h2>{programData.title}</h2>
+        <img src={programData.image} alt={programData.title} className="modal-image" />
+        <p className="description">{programData.description}</p>
+        <p className="author">Created by: {programData.author}</p>
+        <a href={programData.downloadLink} className="download-button" download>
+          Download Program
+        </a>
+      </PopupModal>
     </>
   );
 }

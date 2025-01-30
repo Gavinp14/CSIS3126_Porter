@@ -60,3 +60,36 @@
     padding: 0.25rem 0.75rem;
   }
   
+  .trainer-modal-content {
+    padding: 20px;
+  }
+  
+  .trainer-modal-header {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .trainer-modal-header .trainer-card__image-container {
+    width: 200px;
+    flex-shrink: 0;
+  }
+  
+  .trainer-modal-header .trainer-card__modal-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+  
+  .trainer-info h3 {
+    margin-bottom: 10px;
+  }
+  
+  .trainer-modal-body h4 {
+    margin: 20px 0 10px;
+  }
+  
+  .trainer-modal-body h4:first-child {
+    margin-top: 0;
+  }
+  

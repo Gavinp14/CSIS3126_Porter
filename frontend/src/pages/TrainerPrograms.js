@@ -10,7 +10,6 @@ function TrainerPrograms() {
       <div className='container pt-5'>
         <div className='row'>
           <div className='col-sm-6'>
-            <h2 className='px-3 mb-5'>My Programs</h2>
             <ProgramTable />  
           </div>
           <div className='col-sm-6'>

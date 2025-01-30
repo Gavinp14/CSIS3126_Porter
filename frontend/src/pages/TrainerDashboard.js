@@ -1,6 +1,7 @@
 import React from 'react'
 import TrainerNavbar from '../components/navbars/trainernav/TrainerNavbar'
 import PaymentChart from '../components/PaymentChart/PaymentChart'
+import PaymentCardTable from '../components/PaymentCardTable/PaymentCardTable'
 
 function TrainerDashboard() {
   return (
@@ -12,7 +13,7 @@ function TrainerDashboard() {
                 <PaymentChart/>
             </div>
             <div className="col-sm-6">
-                
+                <PaymentCardTable/>
             </div>
           </div>
         </div>

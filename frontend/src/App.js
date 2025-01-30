@@ -12,7 +12,6 @@ import TrainerPrograms from './pages/TrainerPrograms';
 import TrainerMessages from './pages/TrainerMessages';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import Settings from './pages/Settings';
 import { Provider } from 'react-redux';
 import { store } from './redux/config';
 
@@ -30,7 +29,6 @@ function App() {
         <Route path="trainer/programs" element={<TrainerPrograms/>}/>
         <Route path="trainer/clients" element={<Clients/>}/>
         <Route path="trainer/messages" element={<TrainerMessages/>}/>
-        <Route path="/settings" element={<Settings/>}/>
       </Routes>
     </Router>
   );

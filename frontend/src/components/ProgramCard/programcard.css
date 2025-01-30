@@ -36,20 +36,22 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.95);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 20px;
 }
 
 .modal-content {
   background-color: white;
   padding: 2rem;
   border-radius: 8px;
-  max-width: 500px;
-  width: 90%;
+  width: auto;
   position: relative;
+  overflow-y: auto;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .close-button {
@@ -63,7 +65,7 @@
 }
 
 .modal-image {
-  max-width: 100%;
+  max-width: 70%;
   height: auto;
   margin: 1rem 0;
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, Button } from 'react-bootstrap'; // React-Bootstrap for modal functionality
+import { Button } from 'react-bootstrap';
+import PopupModal from '../PopupModal/PopupModal'; // Add this import
 import "./trainercard.css"
 
 function TrainerCard() {
@@ -12,8 +13,6 @@ function TrainerCard() {
   const imageUrl = "/IMG_1204.jpg"; // Profile image URL
   const moreText = "John also specializes in post-rehabilitation training and has helped athletes recover from injuries.";
 
-  const handleShow = () => setShowModal(true);
-  const handleClose = () => setShowModal(false);
 
   return (
     <div className="trainer-card">
@@ -31,7 +30,7 @@ function TrainerCard() {
         <div className="trainer-card__footer">
           <p className="card-text mb-0"><strong>Location:</strong> {location}</p>
           <div className="trainer-card__actions">
-            <Button variant="link" onClick={handleShow} className="trainer-card__read-more">
+            <Button variant="link" onClick={() => setShowModal(true)} className="trainer-card__read-more">
               Read More
             </Button>
             <Button variant="primary" className="trainer-card__message">
@@ -41,31 +40,34 @@ function TrainerCard() {
         </div>
       </div>
 
-      {/* Modal for Read More */}
-      <Modal show={showModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>{name}'s Full Info</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="trainer-card__image-container">
-            <img 
-              src={imageUrl} 
-              alt={`${name}'s profile`} 
-              className="trainer-card__modal-image"
-            />
+      <PopupModal 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)}
+        title={`About ${name}`}
+      >
+          <div className="trainer-modal-content">
+            <div className="trainer-modal-header">
+              <div className="trainer-card__image-container">
+                <img 
+                  src={imageUrl} 
+                  alt={`${name}'s profile`} 
+                  className="trainer-card__modal-image"
+                />
+              </div>
+              <div className="trainer-info">
+                <h3>{name}</h3>
+                <h5 className="text-muted">{specialty}</h5>
+                <p><strong>Location:</strong> {location}</p>
+              </div>
+            </div>
+            <div className="trainer-modal-body">
+              <h4>About</h4>
+              <p>{description}</p>
+              <h4>Additional Information</h4>
+              <p>{moreText}</p>
+            </div>
           </div>
-          <p><strong>Name:</strong> {name}</p>
-          <p><strong>Specialty:</strong> {specialty}</p>
-          <p><strong>Description:</strong> {description}</p>
-          <p><strong>Location:</strong> {location}</p>
-          <p>{moreText}</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      </PopupModal>
     </div>
   );
 }

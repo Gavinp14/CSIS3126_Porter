@@ -1,5 +1,6 @@
 import React, {useState} from 'react'
 import {Settings} from 'lucide-react'
+import SettingsModal from '../../SettingsModal/SettingsModal'
 import "./clientnav.css"
 
 function ClientNavbar() {
@@ -49,7 +50,8 @@ function ClientNavbar() {
             </li>
           </ul>
         </div>
-        <Settings className="settings-icon h-7 w-7 text-white" />
+        <SettingsModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+        <Settings onClick={() => setIsOpen(true)} className="settings-icon h-7 w-7 text-white" />
       </div>
     </nav>    
   );
