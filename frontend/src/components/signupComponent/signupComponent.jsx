@@ -1,9 +1,13 @@
-import React, { useState,  } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import './signupComponent.css';
+import {ErrorDialog, SuccessDialog} from '../dialogs';
+import { useNavigate } from 'react-router-dom';
+
 
 function SignupComponent() {
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -12,6 +16,10 @@ function SignupComponent() {
     confirmPassword: '',  
     registertype: '',
   });
+
+  //navigation function
+  const navigate = useNavigate();
+
 
   //update form data with user input 
   const handleChange = (e) => {
@@ -24,21 +32,24 @@ function SignupComponent() {
     
     // Form validation
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword || !formData.registertype) {
-      alert("Please fill in all fields!");
+      ErrorDialog('Please fill in all fields!');
       return;
     }
 
+
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
+      ErrorDialog("Passwords don't match!");
       return;
     }
+
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      alert("Please enter a valid email address!");
+        if (!emailRegex.test(formData.email)) {
+      ErrorDialog('Please enter a valid email address!');
       return;
     }
+
 
     try {
       // Hash password before sending to backend
@@ -54,19 +65,20 @@ function SignupComponent() {
       });
 
       if (response.status === 200 || response.status === 201) {
-        alert("Account created successfully!");
-        // Redirect after successful signup
-        window.location.href = '/';
+        if (formData.registertype === 'client') {
+          navigate('/client/dashboard');
+        } else if (formData.registertype === 'trainer') {
+          navigate('/trainer/dashboard');
+        }
+        SuccessDialog('Account created successfully!');
       }
+      
     } catch (error) {
       console.error('Error:', error);
-      if (error.response?.data?.detail) {
-        alert(error.response.data.detail);
-      } else {
-        alert('An error occurred during signup. Please try again.');
-      }
+      ErrorDialog(error.response?.data?.detail || 'An error occurred during signup. Please try again.');
     }
   };
+
 
   return (
     <div className="main-container d-flex flex-column justify-content-center align-items-center">
@@ -201,7 +213,7 @@ function SignupComponent() {
         </div>
 
         <h6 className="text-center">
-          Already have an account? <a href="/">Login here</a>
+          Already have an account? <a className="login-here-text" onClick={() => navigate('/')}>Login here</a>
         </h6>
       </div>
     </div>

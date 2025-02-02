@@ -25,16 +25,19 @@
   }
   
   
-  h6 {
+  .login-here-text {
     font-size: 0.9rem;
   }
   
-  h6 a {
+  .login-here-text a {
     color: #007bff;
     text-decoration: none;
   }
-  
-  h6 a:hover {
+
+  .login-here-text:hover {
     text-decoration: underline;
+    cursor: pointer;
   }
+
+
   

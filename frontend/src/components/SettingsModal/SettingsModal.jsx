@@ -1,8 +1,11 @@
 import React from 'react'
 import PopupModal from '../PopupModal/PopupModal'
+import { useNavigate } from 'react-router-dom';
 import './settingsmodal.css'
 
 function SettingsModal({ isOpen, onClose }) {
+  const navigate = useNavigate();
+
   return (
     <PopupModal isOpen={isOpen} onClose={onClose}>
       <div className="settings-container">
@@ -37,7 +40,7 @@ function SettingsModal({ isOpen, onClose }) {
         </div>
 
         <div className="action-buttons">
-          <button className="logout-btn" onClick={() => console.log('Logout clicked')}>
+          <button className="logout-btn" onClick={() => navigate('/')}>
             Logout
           </button>
           <button className="delete-account-btn" onClick={() => console.log('Delete account clicked')}>
