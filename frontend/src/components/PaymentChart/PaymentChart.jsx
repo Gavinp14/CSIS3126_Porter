@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import LineChartComponent from '../../LineChartComponent/LineChartComponent';
+import LineChartComponent from '../LineChartComponent/LineChartComponent'
 import "./paymentchart.css"
 
 function PaymentChart() {

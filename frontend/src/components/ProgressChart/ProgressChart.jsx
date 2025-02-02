@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import "./progresschart.css";
-import LineChartComponent from '../../LineChartComponent/LineChartComponent';
+import LineChartComponent from '../LineChartComponent/LineChartComponent';
 
 function ProgressChart() {
   const [viewMode, setViewMode] = useState('month'); // 'month' or 'day'
