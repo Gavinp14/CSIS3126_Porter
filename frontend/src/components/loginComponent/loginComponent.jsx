@@ -10,30 +10,25 @@ function LoginComponent() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
+    console.log(email);
+    console.log(password);
     try {
-      const response = await axios.get('http://127.0.0.1:8000/users');
-      
-      console.log('Fetched users:', response.data.users); // Log users from API
-      
-      const users = response.data.users;
-      const user = users.find(user => user.email === email);
-      
-      if (!user) {
-        ErrorDialog('Login failed', 'User not found');
-        return;
-      }
+      const response = await axios.post('http://127.0.0.1:8000/login', {
+        email,
+        password,
+      });
 
-      if (response.status === 200) {
-        if (user.registertype === 'client') {
-          navigate('/client/dashboard');
-        } else if (user.registertype === 'trainer') {
-          navigate('/trainer/dashboard');
-        }
-        SuccessDialog('Login successful', 'You have been logged in');
-      }   
+      const { message, registertype } = response.data;
+      SuccessDialog('Login successful', message);
+
+      if (registertype === 'client') {
+        navigate('/client/dashboard');
+      } else if (registertype === 'trainer') {
+        navigate('/trainer/dashboard');
+      }
     } catch (error) {
       console.error('Login error:', error);
-      ErrorDialog('Login failed', 'Please check your email and password');
+      ErrorDialog('Login failed', error.response?.data?.detail || 'Invalid credentials');
     }
   };
 

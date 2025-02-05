@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
+import bcrypt
 from .config import get_database_connection
 
 #initialize FastAPI app
@@ -16,13 +17,16 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-
 class User(BaseModel):
     firstname: str
     lastname: str
     email: str
     password_hash: str
     registertype: str
+
+class Login(BaseModel):
+    email: str
+    password_hash: str
 
 @app.post("/users")
 async def create_user(user: User):
@@ -34,6 +38,31 @@ async def create_user(user: User):
     connection.commit()
     connection.close()
     return {"message": "User created successfully"}
+
+
+@app.post("/login")
+async def login(user: Login):
+    connection = get_database_connection()
+    cursor = connection.cursor()
+
+    try:
+        query = "SELECT email, password_hash, registertype FROM users WHERE email = %s"
+        cursor.execute(query, (user.email,))  # Proper parameterized query
+        
+        user_record = cursor.fetchone()  # Fetch the user record
+        
+        if not user_record:
+            raise HTTPException(status_code=401, detail="User not found")
+
+        # Verify the hashed password using bcrypt
+        if not bcrypt.checkpw(user.password.encode('utf-8'), user_record["password_hash"].encode('utf-8')):
+            raise HTTPException(status_code=401, detail="Incorrect password")
+
+        return {"message": "Login successful", "registertype": user_record["registertype"]}
+
+    finally:
+        cursor.close()  # Always close cursor
+        connection.close()  # Close the connection
 
 
 @app.get("/users")
