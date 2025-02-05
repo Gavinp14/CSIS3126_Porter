@@ -39,12 +39,14 @@ async def create_user(user: User):
 @app.get("/users")
 async def read_users():
     connection = get_database_connection()
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True)  # Ensure results are in dictionary format
     query = "SELECT * FROM users"
     cursor.execute(query)
     users = cursor.fetchall()
     connection.close()
-    return users
+
+    return {"users": users}  # Wrap in a dictionary for JSON serialization
+
 
 
 @app.get("/")
