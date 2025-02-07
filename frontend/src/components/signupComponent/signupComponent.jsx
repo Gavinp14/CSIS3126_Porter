@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import bcrypt from 'bcryptjs';
 import './signupComponent.css';
 import {ErrorDialog, SuccessDialog} from '../dialogs';
 import { useNavigate } from 'react-router-dom';
@@ -9,8 +8,6 @@ import { useNavigate } from 'react-router-dom';
 function SignupComponent() {
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',  
@@ -31,7 +28,7 @@ function SignupComponent() {
     e.preventDefault();
     
     // Form validation
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword || !formData.registertype) {
+    if (!formData.email || !formData.password || !formData.confirmPassword || !formData.registertype) {
       ErrorDialog('Please fill in all fields!');
       return;
     }
@@ -52,24 +49,15 @@ function SignupComponent() {
 
 
     try {
-      // Hash password before sending to backend
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(formData.password, salt);
 
-      const response = await axios.post('http://127.0.0.1:8000/users', {
-        firstname: formData.firstName,
-        lastname: formData.lastName,
+      const response = await axios.post('http://127.0.0.1:5000/api/v1/register', {
         email: formData.email,
-        password_hash: hashedPassword,
+        password_hash: formData.password,
         registertype: formData.registertype,
       });
 
       if (response.status === 200 || response.status === 201) {
-        if (formData.registertype === 'client') {
-          navigate('/client/dashboard');
-        } else if (formData.registertype === 'trainer') {
-          navigate('/trainer/dashboard');
-        }
+        navigate('/');
         SuccessDialog('Account created successfully!');
       }
       
@@ -94,36 +82,8 @@ function SignupComponent() {
         <h1 className="text-center mb-4">Create Account</h1>
 
         <div className="row mb-1">
-          <div className="col">
-            <label htmlFor="firstName" className="form-label">
-              Enter first name
-            </label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              className="form-control"
-              placeholder="First name"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="col">
-            <label htmlFor="lastName" className="form-label">
-              Enter last name
-            </label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              className="form-control"
-              placeholder="Last name"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          {/* Removed first name input */}
+          {/* Removed last name input */}
         </div>
 
         <div className="mb-3">
