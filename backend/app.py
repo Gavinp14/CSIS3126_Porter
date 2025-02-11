@@ -3,16 +3,23 @@ from flask_mysqldb import MySQL
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 import MySQLdb.cursors
+import os 
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
-# MySQL Configuration
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'
-app.config['MYSQL_DB'] = 'trainerpro'
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+# Load environment variables
+load_dotenv()
+print(os.getenv('HOST'))
 
+# MySQL Configuration
+app.config['MYSQL_HOST'] = os.getenv('HOST')
+app.config['MYSQL_USER'] = os.getenv('USER')
+app.config['MYSQL_PASSWORD'] = os.getenv('PASS')
+app.config['MYSQL_DB'] = os.getenv('DB')
+app.config['MYSQL_CURSORCLASS'] = os.getenv('CURSORCLASS')
+
+#misc configurations
 mysql = MySQL(app)
 CORS(app)
 bcrypt = Bcrypt(app)
@@ -70,14 +77,10 @@ def login():
     if not bcrypt.check_password_hash(user['password_hash'], password):
         return jsonify({"message": "Invalid password"}), 401
     
-    # Return user type along with success message
     return jsonify({
         "message": "Login successful",
         "registertype": user['registertype']
     }), 200
-
-    
-
 
 if __name__ == '__main__':
     app.run(debug=True)
