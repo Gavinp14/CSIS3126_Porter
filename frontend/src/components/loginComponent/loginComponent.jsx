@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { ErrorDialog, SuccessDialog } from '../dialogs';
+import jwt_decode from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import './loginComponent.css';
 
@@ -45,11 +46,13 @@ function LoginComponent() {
       console.log(response);
 
       if (response.status === 200) {
-        // Store user type in localStorage if needed
-        localStorage.setItem('userType', response.data.registertype);
         
-        SuccessDialog('Login successful!');
-        handleNavigation(response.data.registertype);
+        //decode token and get user data 
+        const {access_token} = response.data;
+        const decodedToken = jwt_decode(access_token);
+        
+        //navigate to dashboard based on register type 
+        handleNavigation(decodedToken.sub.registertype);
       }
       
     } catch (error) {

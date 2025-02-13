@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import MySQLdb.cursors
 import os 
 from dotenv import load_dotenv
@@ -18,11 +19,13 @@ app.config['MYSQL_USER'] = os.getenv('USER')
 app.config['MYSQL_PASSWORD'] = os.getenv('PASS')
 app.config['MYSQL_DB'] = os.getenv('DB')
 app.config['MYSQL_CURSORCLASS'] = os.getenv('CURSORCLASS')
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
 #misc configurations
 mysql = MySQL(app)
 CORS(app)
 bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
 
 #test enpoint to ensure everything is working 
 @app.route('/')
@@ -77,10 +80,15 @@ def login():
     if not bcrypt.check_password_hash(user['password_hash'], password):
         return jsonify({"message": "Invalid password"}), 401
     
-    return jsonify({
-        "message": "Login successful",
-        "registertype": user['registertype']
-    }), 200
+    if user and bcrypt.check_password_hash(user['password_hash'], password):
+        access_token = create_access_token(identity={
+            "email": user['email'],
+            "user_id": user['user_id'],  # Include user_id in the token
+            "registertype": user['registertype']  # Include registertype in the token
+        })
+        return jsonify({
+            "access_token": access_token,
+        }), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
