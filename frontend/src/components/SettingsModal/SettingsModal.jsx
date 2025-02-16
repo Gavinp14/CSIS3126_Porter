@@ -10,16 +10,6 @@ function SettingsModal({ isOpen, onClose }) {
     <PopupModal isOpen={isOpen} onClose={onClose}>
       <div className="settings-container">
         <h2>Account Settings</h2>
-        
-        <div className="profile-picture-container">
-          <img 
-            src="/IMG_1204.jpg" // Replace with actual user profile picture
-            alt="Profile Picture"
-            className="profile-picture"
-          />
-
-        </div>
-
         <div className="user-info">
           <div className="info-row">
             <label>First Name:</label>

@@ -90,5 +90,27 @@ def login():
             "access_token": access_token,
         }), 200
 
+#trainers endpoint
+@app.route('/api/v1/trainers', methods=['GET'])
+def get_trainers():
+    #data = request.get_json()
+    #first_name = data.get('first_name')
+    #last_name = data.get('last_name')
+    #age = data.get('age')
+    #gender = data.get('gender')
+    #years_experience = data.get('years_experience')
+    #location = data.get('location')
+    #about_text = data.get('about_text')
+    
+    #execute sql queery to get all trainers
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM trainers")
+    trainers = cursor.fetchall()
+    
+
+    return jsonify({"trainers": trainers}), 200
+    
+
+
 if __name__ == '__main__':
     app.run(debug=True)
