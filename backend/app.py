@@ -93,23 +93,34 @@ def login():
 #trainers endpoint
 @app.route('/api/v1/trainers', methods=['GET'])
 def get_trainers():
-    #data = request.get_json()
-    #first_name = data.get('first_name')
-    #last_name = data.get('last_name')
-    #age = data.get('age')
-    #gender = data.get('gender')
-    #years_experience = data.get('years_experience')
-    #location = data.get('location')
-    #about_text = data.get('about_text')
-    
-    #execute sql queery to get all trainers
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM trainers")
     trainers = cursor.fetchall()
     
-
     return jsonify({"trainers": trainers}), 200
-    
+
+
+@app.route('/api/v1/trainers', methods=['POST'])
+def create_trainer():
+    data = request.get_json()
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    age = data.get('age')
+    gender = data.get('gender')
+    years_experience = data.get('years_experience')
+    location = data.get('location')
+    about_text = data.get('about_text')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO trainers (first_name, last_name, age, gender, years_experience, location, about_text) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (first_name, last_name, age, gender, years_experience, location, about_text)
+    )
+
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"message": "User registered successfully"}), 201
 
 
 if __name__ == '__main__':
