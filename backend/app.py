@@ -110,11 +110,12 @@ def create_trainer():
     years_experience = data.get('years_experience')
     location = data.get('location')
     about_text = data.get('about_text')
+    specialty = data.get('specialty')
 
     cursor = mysql.connection.cursor()
     cursor.execute(
-        "INSERT INTO trainers (first_name, last_name, age, gender, years_experience, location, about_text) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-        (first_name, last_name, age, gender, years_experience, location, about_text)
+        "INSERT INTO trainers (first_name, last_name, age, gender, years_experience, location, about_text, specialty) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+        (first_name, last_name, age, gender, years_experience, location, about_text, specialty)
     )
 
     mysql.connection.commit()
