@@ -1,23 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dropdown, Button } from 'react-bootstrap';
 import './criteriafilter.css'; // Import custom CSS for modern styling
 
-function CriteriaFilter() {
+function CriteriaFilter({ onApplyFilters }) {
   const [age, setAge] = useState([]);
   const [experience, setExperience] = useState([]);
   const [specialty, setSpecialty] = useState('');
-  const [location, setLocation] = useState('');
+  const [location, setLocation] = useState(''); // Location as a string
   const [gender, setGender] = useState([]);
-  const [distance, setDistance] = useState(0); // Distance from current location
-
-  // Get the user's current location using the Geolocation API
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(position => {
-        console.log(position.coords.latitude, position.coords.longitude); // Here you can use the lat/lon for distance calculations
-      });
-    }
-  }, []);
 
   const handleCheckboxChange = (e, filter, setter) => {
     const value = e.target.value;
@@ -26,6 +16,17 @@ function CriteriaFilter() {
     } else {
       setter(filter.filter(item => item !== value));
     }
+  };
+
+  const handleApplyFilters = () => {
+    const filters = {
+      age,
+      experience,
+      specialty,
+      location, // Pass the typed location
+      gender,
+    };
+    onApplyFilters(filters);
   };
 
   return (
@@ -74,7 +75,7 @@ function CriteriaFilter() {
         <div className="criteria-group">
           <h6>Gender</h6>
           <div className="checkbox-group">
-            {['Male', 'Female', 'Non-Binary'].map((genderOption, index) => (
+            {['Male', 'Female'].map((genderOption, index) => (
               <div key={index} className="custom-checkbox">
                 <input
                   type="checkbox"
@@ -97,7 +98,7 @@ function CriteriaFilter() {
               {specialty || 'Select'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              {['Personal Trainer', 'Yoga Instructor', 'Nutritionist'].map((specialty, index) => (
+              {['Bodybuilding', 'Weight Loss', 'Powerlifting'].map((specialty, index) => (
                 <Dropdown.Item key={index} eventKey={specialty}>
                   {specialty}
                 </Dropdown.Item>
@@ -106,24 +107,22 @@ function CriteriaFilter() {
           </Dropdown>
         </div>
 
-        {/* Location (with scrollbar for miles) */}
+        {/* Location Input (Typing Input) */}
         <div className="criteria-group">
           <h6>Location</h6>
-          <div className="location-slider">
+          <div className="location-input">
             <input
-              type="range"
-              min="1"
-              max="100"
-              value={distance}
-              onChange={e => setDistance(e.target.value)}
-              className="slider"
+              type="text"
+              placeholder="Enter location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="form-control"
             />
-            <span className="distance-label">{distance} miles</span>
           </div>
         </div>
       </div>
 
-      <Button variant="primary" className="apply-filters" size="sm">
+      <Button variant="primary" className="apply-filters" size="sm" onClick={handleApplyFilters}>
         Apply Filters
       </Button>
     </div>
