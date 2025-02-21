@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { ErrorDialog, SuccessDialog } from '../dialogs';
-import jwt_decode from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';// Update this path
+import jwt_decode from 'jwt-decode';
 import './loginComponent.css';
 
 function LoginComponent() {
@@ -12,6 +13,7 @@ function LoginComponent() {
   });
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,6 +28,8 @@ function LoginComponent() {
       case 'client':
         navigate('/client/dashboard');
         break;
+      default:
+        navigate('/');
     }
   };
 
@@ -43,20 +47,32 @@ function LoginComponent() {
         password: formData.password,
       });
 
-      console.log(response);
-
       if (response.status === 200) {
+        const { access_token } = response.data;
         
-        //decode token and get user data 
-        const {access_token} = response.data;
-        const decodedToken = jwt_decode(access_token);
+        // Use the AuthContext login function
+        const success = login(access_token);
         
-        //navigate to dashboard based on register type 
-        handleNavigation(decodedToken.sub.registertype);
+        if (success) {
+          // Decode token to get registertype
+          const decodedToken = jwt_decode(access_token);
+          const registertype = decodedToken.sub?.registertype || 
+                              (decodedToken.identity?.registertype);
+          
+          // Show success message
+          SuccessDialog('Login successful!');
+          
+          // Navigate based on user type
+          handleNavigation(registertype);
+        } else {
+          ErrorDialog('Failed to process login. Please try again.');
+        }
       }
-      
     } catch (error) {
-      ErrorDialog(error.response?.data?.message || 'An error occurred during login. Please try again.');
+      console.error('Login error:', error);
+      ErrorDialog(
+        error.response?.data?.message || 'An error occurred during login. Please try again.'
+      );
     }
   };
 

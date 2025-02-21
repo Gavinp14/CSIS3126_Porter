@@ -90,7 +90,7 @@ def login():
             "access_token": access_token,
         }), 200
 
-#trainers endpoint
+#trainers endpoints
 @app.route('/api/v1/trainers', methods=['GET'])
 def get_trainers():
     cursor = mysql.connection.cursor()
@@ -122,6 +122,34 @@ def create_trainer():
     cursor.close()
 
     return jsonify({"message": "User registered successfully"}), 201
+
+#progress endpoints
+@app.route('/api/v1/progress/<int:user_id>', methods=['GET'])
+def get_progress(user_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM progress WHERE user_id = %s", (user_id,))
+    progress = cursor.fetchall()
+
+    return jsonify({"progress": progress}), 200
+
+@app.route('/api/v1/progress', methods=['POST'])
+def create_progress():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    progress_date = data.get('progress_date')
+    weight = data.get('weight')
+    body_fat_percentage = data.get('body_fat_percentage')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO progress (user_id, progress_date, weight, body_fat_percentage) VALUES (%s, %s, %s, %s)",
+        (user_id, progress_date, weight, body_fat_percentage)
+    )
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"message": "Progress added successfully"}), 201
+
 
 
 if __name__ == '__main__':
