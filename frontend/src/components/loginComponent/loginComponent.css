@@ -1,6 +1,7 @@
 /* Center the content in the middle of the screen */
 .main-container {
     height: 80vh;
+    overflow-y: hidden;
   }
   
   .login-container {

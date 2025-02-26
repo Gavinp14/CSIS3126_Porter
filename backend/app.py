@@ -123,6 +123,68 @@ def create_trainer():
 
     return jsonify({"message": "User registered successfully"}), 201
 
+
+#client endpoints
+@app.route('/api/v1/clients', methods=['GET'])
+def get_clients():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM clients")
+    clients = cursor.fetchall()
+    
+    return jsonify({"clients": clients}), 200
+
+@app.route('/api/v1/clients', methods=['POST'])
+def create_client():
+    data = request.get_json()
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    age = data.get('age')
+    gender = data.get('gender')
+    hometown = data.get('hometown')
+    fitness_goals = data.get('fitness_goals')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO clients (first_name, last_name, age, gender, hometown, fitness_goals) VALUES (%s, %s, %s, %s, %s, %s)",
+        (first_name, last_name, age, gender, hometown, fitness_goals)
+    )
+
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"message": "Client registered successfully"}), 201
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #progress endpoints
 @app.route('/api/v1/progress/<int:user_id>', methods=['GET'])
 def get_progress(user_id):
