@@ -90,6 +90,24 @@ def login():
             "access_token": access_token,
         }), 200
 
+#get client and user info
+@app.route('/api/v1/client/<int:user_id>', methods=['GET'])
+def get_client_info(user_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM users CROSS JOIN clients WHERE users.user_id = %s", (user_id,))
+    clientInfo = cursor.fetchall()
+
+    return jsonify({"client info": clientInfo}), 200
+
+#get trainer and user info 
+@app.route('/api/v1/trainer/<int:user_id>', methods=['GET'])
+def get_trainer_info(user_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM users CROSS JOIN trainers WHERE users.user_id = %s", (user_id,))
+    trainerInfo = cursor.fetchall()
+
+    return jsonify({"trainer info": trainerInfo}), 200
+
 #trainers endpoints
 @app.route('/api/v1/trainers', methods=['GET'])
 def get_trainers():
@@ -142,11 +160,12 @@ def create_client():
     gender = data.get('gender')
     hometown = data.get('hometown')
     fitness_goals = data.get('fitness_goals')
+    user_id = data.get('user_id')
 
     cursor = mysql.connection.cursor()
     cursor.execute(
-        "INSERT INTO clients (first_name, last_name, age, gender, hometown, fitness_goals) VALUES (%s, %s, %s, %s, %s, %s)",
-        (first_name, last_name, age, gender, hometown, fitness_goals)
+        "INSERT INTO clients (first_name, last_name, age, gender, hometown, fitness_goals, user_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (first_name, last_name, age, gender, hometown, fitness_goals, user_id)
     )
 
     mysql.connection.commit()

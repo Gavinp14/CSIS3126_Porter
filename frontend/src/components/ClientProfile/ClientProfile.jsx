@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import PopupModal from '../PopupModal/PopupModal';
 import { ErrorDialog, SuccessDialog } from '../dialogs';
+import {useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import "./clientprofile.css";
 
 function ClientProfile({ isOpen, onClose }) {
+  const { getUserId } = useAuth();
+  const userId = getUserId();
+  console.log(userId);
+
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -37,7 +42,8 @@ function ClientProfile({ isOpen, onClose }) {
         age: formData.age, 
         gender: formData.gender,
         hometown: formData.hometown,
-        fitness_goals: formData.fitness_goals
+        fitness_goals: formData.fitness_goals,
+        user_id: userId
       });
 
       if (response.status === 200 || response.status === 201) {

@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import PopupModal from '../PopupModal/PopupModal';
 import { ErrorDialog, SuccessDialog } from '../dialogs';
+import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import "./trainerprofile.css";
 
 function TrainerProfile({ isOpen, onClose }) {
+  const { getUserId } = useAuth();
+  const userId = getUserId();
+  console.log(userId);
+
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -41,7 +46,8 @@ function TrainerProfile({ isOpen, onClose }) {
         years_experience: formData.years_experience,
         location: formData.location,
         about_text: formData.about_text,
-        specialty: formData.specialty
+        specialty: formData.specialty,
+        user_id: userId
       });
 
       if (response.status === 200 || response.status === 201) {

@@ -72,6 +72,11 @@ export const AuthProvider = ({ children }) => {
     return user.sub?.user_id || user.user_id || null;
   };
 
+  const getRegisterType = () => {
+    if (!user) return null;
+    return user.sub?.registertype || user.registertype || null;
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -80,7 +85,8 @@ export const AuthProvider = ({ children }) => {
       loading,
       isAuthenticated,
       getToken,
-      getUserId
+      getUserId,
+      getRegisterType
     }}>
       {children}
     </AuthContext.Provider>
