@@ -173,7 +173,51 @@ def create_client():
 
     return jsonify({"message": "Client registered successfully"}), 201
 
+#program endpoints
+@app.route('/api/v1/programs', methods=['GET'])
+def get_programs():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM programs")
+    programs = cursor.fetchall()
 
+    return jsonify({"programs": programs}), 200
+
+@app.route('/api/v1/programs', methods=['POST'])
+def create_program():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    program_name = data.get('program_name')
+    program_description = data.get('program_description')
+    program_link = data.get('program_link')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO programs (user_id, program_name, program_description, program_link) VALUES (%s, %s, %s, %s)",
+        (user_id, program_name, program_description, program_link)
+    )
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"message": "Program added successfully"}), 201
+
+@app.route('/api/v1/programs/<int:user_id>', methods=['GET'])
+def get_program_info(user_id):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM programs WHERE user_id = %s", (user_id,))
+        program_info = cursor.fetchall()
+
+        # If no programs are found, return a proper error message
+        if not program_info:
+            return jsonify({"error": "No programs found for this user."}), 404
+
+        # Return the raw program info as a list of tuples
+        return jsonify({"programs": program_info}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    
 
 
 

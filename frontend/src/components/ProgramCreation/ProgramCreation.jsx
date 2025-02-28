@@ -1,26 +1,50 @@
-import React, { useState } from 'react'
-import "./programcreation.css"
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import axios from 'axios';
+import { ErrorDialog, SuccessDialog } from '../dialogs';
+import "./programcreation.css";
 
 function ProgramCreation() {
+  const {getUserId} = useAuth();
+  const userId = getUserId();
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    image: null,
-    file: null
+    link: ''
   });
 
   const handleInputChange = (e) => {
-    const { name, value, files } = e.target;
-    if (files) {
-      setFormData(prev => ({
-        ...prev,
-        [name]: files[0]
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.description || !formData.link) {
+      ErrorDialog('Please fill in all fields!');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/api/v1/programs', {
+        user_id: userId,
+        program_name: formData.name,
+        program_description: formData.description,
+        program_link: formData.link
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        SuccessDialog('Program Created Successfully!');
+      }
+      
+    } catch (error) {
+      console.error('Error:', error);
+      ErrorDialog(error.response?.data?.detail || 'An error occurred during Creation. Please try again.');
     }
   };
 
@@ -56,31 +80,22 @@ function ProgramCreation() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="image">Program Image</label>
+            <label htmlFor="link">Program Link</label>
             <input
-              type="file"
-              id="image"
-              name="image"
-              accept="image/*"
+              type="text"
+              id="link"
+              name="link"
+              value={formData.link}
               onChange={handleInputChange}
+              required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="file">Program File</label>
-            <input
-              type="file"
-              id="file"
-              name="file"
-              onChange={handleInputChange}
-            />
-          </div>
-
-          <button type="submit" className="submit-btn">Create Program</button>
+          <button type="submit" onClick={handleSubmit} className="submit-btn">Create Program</button>
         </form>
       </div>
     </div>
-  )
+  );
 }
 
-export default ProgramCreation
+export default ProgramCreation;
