@@ -2,10 +2,10 @@ import React from 'react';
 import Message from '../Message/Message';
 import "./messageform.css"
 
-function MessageForm() {
+function MessageForm(trainerName, /*trainerId, userId, token*/) {
   return (
     <div className="container form-container">
-      <h3 className="px-4 py-4 mt-3 text-center">Conversation with John Doe</h3>
+      <h3 className="px-4 py-4 mt-3 text-center">Conversation with mwe</h3>
       <div className="conversation-container">
         <div className="row">
           <div className="col-12">

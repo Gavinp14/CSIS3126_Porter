@@ -217,8 +217,86 @@ def get_program_info(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+#message endpoints 
+@app.route('/api/v1/messages/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_messages(user_id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("""
+        SELECT 
+            trainers.trainer_id, 
+            trainers.first_name, 
+            trainers.last_name, 
+            trainers.specialty,
+            messages.message_id, 
+            messages.message_text AS content
+        FROM messages
+        JOIN trainers ON messages.receiver_id = trainers.trainer_id
+        WHERE messages.sender_id = %s
+        ORDER BY trainers.trainer_id, messages.message_id
+    """, (user_id,))
     
+    messages_with_trainers = cursor.fetchall()
+    cursor.close()
+    
+    return jsonify({"messages": messages_with_trainers}), 200
 
+@app.route('/api/v1/trainermessages/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_trainers_contacts(user_id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("""
+        SELECT DISTINCT 
+            trainers.trainer_id, 
+            trainers.first_name, 
+            trainers.last_name
+        FROM messages
+        JOIN trainers ON messages.receiver_id = trainers.trainer_id
+        WHERE messages.sender_id = %s
+    """, (user_id,))
+    
+    trainers_messaged = cursor.fetchall()
+    cursor.close()
+    
+    return jsonify({"trainers": trainers_messaged}), 200
+
+@app.route('/api/v1/messages/thread/<int:user_id>/<int:trainer_id>', methods=['GET'])
+@jwt_required()
+def get_message_thread(user_id, trainer_id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("""
+        SELECT 
+            messages.sender_id,
+            messages.receiver_id,
+            messages.message_text
+        FROM messages
+        WHERE (messages.sender_id = %s AND messages.receiver_id = %s)
+           OR (messages.sender_id = %s AND messages.receiver_id = %s)
+        ORDER BY messages.message_id
+    """, (user_id, trainer_id, trainer_id, user_id))
+    
+    message_thread = cursor.fetchall()
+    cursor.close()
+    
+    return jsonify({"messages": message_thread}), 200
+
+@app.route('/api/v1/messages', methods=['POST'])
+def create_message():
+    data = request.get_json()
+    sender_id = data.get('sender_id')
+    receiver_id = data.get('receiver_id')
+    message_text = data.get('message_text')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO messages (sender_id, receiver_id, message_text) VALUES (%s, %s, %s)",  (sender_id, receiver_id, message_text)
+    )       
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"message": "Message sent successfully"}), 201
+
+  
 
 
 
@@ -275,7 +353,25 @@ def create_progress():
 
     return jsonify({"message": "Progress added successfully"}), 201
 
-
+@app.route('/api/v1/verify-token', methods=['GET'])
+def verify_token():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return jsonify({'valid': False}), 401
+    
+    try:
+        token = auth_header.split(' ')[1]
+        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        # Check if user exists in database
+        user = User.query.get(payload['sub'])
+        if not user:
+            return jsonify({'valid': False}), 401
+        
+        return jsonify({'valid': True, 'user_id': user.id, 'role': user.role})
+    except jwt.ExpiredSignatureError:
+        return jsonify({'valid': False, 'error': 'Token expired'}), 401
+    except (jwt.InvalidTokenError, Exception) as e:
+        return jsonify({'valid': False, 'error': str(e)}), 401
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,14 +1,10 @@
-import React from 'react';
-import "./contact.css"
+import React from "react";
+import "./contact.css";
 
-const trainer = [
-  { name: "John Doe", image: "/IMG_1204.jpg" }
-];
-
-function Contact() {
+function Contact({ trainerName }) {
   return (
-    <div className="contact px-4 py-4">
-        <h3>John Doe</h3>
+    <div className="contact">
+      <h3>{trainerName}</h3>
     </div>
   );
 }

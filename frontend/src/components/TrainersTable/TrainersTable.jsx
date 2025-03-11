@@ -70,6 +70,7 @@ function TrainersTable({ filters }) {
         filteredTrainers.map((trainer) => (
           <TrainerCard
             key={trainer.trainer_id}
+            trainer_id={trainer.trainer_id}
             first_name={trainer.first_name}
             last_name={trainer.last_name}
             age={trainer.age}
