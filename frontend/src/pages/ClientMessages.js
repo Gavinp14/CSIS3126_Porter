@@ -7,13 +7,8 @@ function ClientMessages() {
   return (
     <>
       <ClientNavbar/>
-      <div className="row">
-        <div className="col-sm-4">
+      <div>
           <MessageTable />
-        </div>
-        <div className="col-sm-8">
-          <MessageForm />
-        </div>
       </div>
     </>
   )
