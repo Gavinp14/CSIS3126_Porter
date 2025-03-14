@@ -217,30 +217,36 @@ def get_program_info(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-#message endpoints 
-@app.route('/api/v1/messages/<int:user_id>', methods=['GET'])
+# Get messages between a user and a contact (works for both client and trainer)
+@app.route('/api/v1/messages/thread/<int:user_id>/<int:contact_id>', methods=['GET'])
 @jwt_required()
-def get_messages(user_id):
+def get_message_thread_generic(user_id, contact_id):
+    # Get identity from token
+    current_user = get_jwt_identity()
+    
+    # Verify user is requesting their own messages
+    if str(current_user.get('user_id')) != str(user_id):
+        return jsonify({"error": "Unauthorized access"}), 403
+    
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("""
         SELECT 
-            trainers.trainer_id, 
-            trainers.first_name, 
-            trainers.last_name, 
-            trainers.specialty,
-            messages.message_id, 
-            messages.message_text AS content
+            message_id,
+            sender_id,
+            receiver_id,
+            message_text
         FROM messages
-        JOIN trainers ON messages.receiver_id = trainers.trainer_id
-        WHERE messages.sender_id = %s
-        ORDER BY trainers.trainer_id, messages.message_id
-    """, (user_id,))
+        WHERE (sender_id = %s AND receiver_id = %s)
+           OR (sender_id = %s AND receiver_id = %s)
+        ORDER BY message_id ASC
+    """, (user_id, contact_id, contact_id, user_id))
     
-    messages_with_trainers = cursor.fetchall()
+    message_thread = cursor.fetchall()
     cursor.close()
     
-    return jsonify({"messages": messages_with_trainers}), 200
+    return jsonify({"messages": message_thread}), 200
 
+# Get all trainers that a client has messaged
 @app.route('/api/v1/trainermessages/<int:user_id>', methods=['GET'])
 @jwt_required()
 def get_trainers_contacts(user_id):
@@ -260,26 +266,32 @@ def get_trainers_contacts(user_id):
     
     return jsonify({"trainers": trainers_messaged}), 200
 
-@app.route('/api/v1/messages/thread/<int:user_id>/<int:trainer_id>', methods=['GET'])
-@jwt_required()
-def get_message_thread(user_id, trainer_id):
+# For trainers to see clients who have messaged them
+@app.route('/api/v1/clientmessages/<int:trainer_id>', methods=['GET'])
+def get_clients_contacts(trainer_id):
+    # Temporarily removed JWT check for debugging
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Very simple query to get clients who have interacted with this trainer
     cursor.execute("""
-        SELECT 
-            messages.sender_id,
-            messages.receiver_id,
-            messages.message_text
-        FROM messages
-        WHERE (messages.sender_id = %s AND messages.receiver_id = %s)
-           OR (messages.sender_id = %s AND messages.receiver_id = %s)
-        ORDER BY messages.message_id
-    """, (user_id, trainer_id, trainer_id, user_id))
+        SELECT DISTINCT
+            c.client_id,
+            c.first_name,
+            c.last_name
+        FROM clients c
+        JOIN messages m ON c.client_id = m.sender_id OR c.client_id = m.receiver_id
+        WHERE m.sender_id = %s OR m.receiver_id = %s
+    """, (trainer_id, trainer_id))
     
-    message_thread = cursor.fetchall()
+    clients = cursor.fetchall()
+    
+    # Debug output
+    print(f"Found {len(clients)} clients for trainer {trainer_id}: {clients}")
+    
     cursor.close()
-    
-    return jsonify({"messages": message_thread}), 200
+    return jsonify({"clients": clients}), 200
 
+# Send a message (works for both client and trainer)
 @app.route('/api/v1/messages', methods=['POST'])
 def create_message():
     data = request.get_json()
@@ -372,6 +384,32 @@ def verify_token():
         return jsonify({'valid': False, 'error': 'Token expired'}), 401
     except (jwt.InvalidTokenError, Exception) as e:
         return jsonify({'valid': False, 'error': str(e)}), 401
+
+@app.route('/api/v1/trainer/all-messages/<int:trainer_id>', methods=['GET'])
+def get_all_trainer_messages(trainer_id):
+    """Simple debug endpoint that returns ALL messages involving the trainer"""
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Simple query to get all messages involving this trainer
+    cursor.execute("""
+        SELECT 
+            messages.message_id,
+            messages.sender_id,
+            messages.receiver_id,
+            messages.message_text,
+            CONCAT(sender_info.first_name, ' ', sender_info.last_name) AS sender_name,
+            CONCAT(receiver_info.first_name, ' ', receiver_info.last_name) AS receiver_name
+        FROM messages
+        LEFT JOIN clients AS sender_info ON messages.sender_id = sender_info.client_id
+        LEFT JOIN clients AS receiver_info ON messages.receiver_id = receiver_info.client_id
+        WHERE messages.sender_id = %s OR messages.receiver_id = %s
+        ORDER BY messages.message_id DESC
+    """, (trainer_id, trainer_id))
+    
+    messages = cursor.fetchall()
+    cursor.close()
+    
+    return jsonify({"all_messages": messages}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

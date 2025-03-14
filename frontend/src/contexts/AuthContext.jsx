@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   // Initialize state from localStorage if available
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [userId, setUserId] = useState(localStorage.getItem('userId') || null);
-  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || null);
+  const [registerType, setRegisterType] = useState(localStorage.getItem('registerType') || null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
 
   // Store auth data in localStorage whenever it changes
@@ -15,13 +15,13 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
-      localStorage.setItem('userRole', userRole);
+      localStorage.setItem('registerType', registerType);
     } else {
       localStorage.removeItem('token');
       localStorage.removeItem('userId');
-      localStorage.removeItem('userRole');
+      localStorage.removeItem('registerType');
     }
-  }, [token, userId, userRole]);
+  }, [token, userId, registerType]);
 
   // Check token validity on page load
   useEffect(() => {
@@ -49,25 +49,30 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (authData) => {
-    setToken(authData.token);
-    setUserId(authData.user_id);
-    setUserRole(authData.role);
+    setToken(authData.access_token);
+    
+    // Extract user_id and registertype from token
+    const tokenData = JSON.parse(atob(authData.access_token.split('.')[1]));
+    const userData = tokenData.sub;
+    
+    setUserId(userData.user_id);
+    setRegisterType(userData.registertype);
     setIsLoggedIn(true);
   };
 
   const logout = () => {
     setToken(null);
     setUserId(null);
-    setUserRole(null);
+    setRegisterType(null);
     setIsLoggedIn(false);
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
-    localStorage.removeItem('userRole');
+    localStorage.removeItem('registerType');
   };
 
   const getToken = () => token;
   const getUserId = () => userId;
-  const getUserRole = () => userRole;
+  const getUserRole = () => registerType;
 
   return (
     <AuthContext.Provider value={{ 
