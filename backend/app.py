@@ -266,30 +266,43 @@ def get_trainers_contacts(user_id):
     
     return jsonify({"trainers": trainers_messaged}), 200
 
-# For trainers to see clients who have messaged them
 @app.route('/api/v1/clientmessages/<int:trainer_id>', methods=['GET'])
 def get_clients_contacts(trainer_id):
-    # Temporarily removed JWT check for debugging
+    # Get database cursor
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     
-    # Very simple query to get clients who have interacted with this trainer
-    cursor.execute("""
-        SELECT DISTINCT
-            c.client_id,
-            c.first_name,
-            c.last_name
-        FROM clients c
-        JOIN messages m ON c.client_id = m.sender_id OR c.client_id = m.receiver_id
-        WHERE m.sender_id = %s OR m.receiver_id = %s
-    """, (trainer_id, trainer_id))
+    try:
+        # Modified query to correctly identify clients who have interacted with this trainer
+        # This ensures we only get clients (not other trainers) and handles both directions of communication
+        cursor.execute("""
+            SELECT DISTINCT
+                c.client_id,
+                c.first_name,
+                c.last_name,
+                MAX(m.timestamp) as last_message_time
+            FROM clients c
+            JOIN messages m ON (c.client_id = m.sender_id AND m.receiver_id = %s) 
+                           OR (c.client_id = m.receiver_id AND m.sender_id = %s)
+            WHERE c.client_id != %s
+            GROUP BY c.client_id, c.first_name, c.last_name
+            ORDER BY last_message_time DESC
+        """, (trainer_id, trainer_id, trainer_id))
+        
+        clients = cursor.fetchall()
+        
+        # Log success without exposing all client data
+        print(f"Successfully retrieved {len(clients)} clients for trainer {trainer_id}")
+        
+        return jsonify({"success": True, "clients": clients}), 200
     
-    clients = cursor.fetchall()
+    except Exception as e:
+        # Handle errors properly
+        print(f"Error retrieving clients for trainer {trainer_id}: {str(e)}")
+        return jsonify({"success": False, "error": "Failed to retrieve clients"}), 500
     
-    # Debug output
-    print(f"Found {len(clients)} clients for trainer {trainer_id}: {clients}")
-    
-    cursor.close()
-    return jsonify({"clients": clients}), 200
+    finally:
+        # Always close the cursor
+        cursor.close()
 
 # Send a message (works for both client and trainer)
 @app.route('/api/v1/messages', methods=['POST'])
@@ -309,6 +322,58 @@ def create_message():
     return jsonify({"message": "Message sent successfully"}), 201
 
   
+#assign trainer to client
+@app.route('/api/v1/trainer_clients/<int:client_id>', methods=['POST'])
+def assign_trainer_to_client(client_id):
+    data = request.get_json()
+    id = data.get('id') 
+    trainer_id = data.get('trainer_id')
+    client_id = data.get('client_id')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("INSERT INTO trainer_clients (id, trainer_id, client_id) VALUES (%s, %s, %s)", (id, trainer_id, client_id))
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"message": "Trainer assigned successfully"}), 201
+
+
+#get all clients assigned for a trainer
+@app.route('/api/v1/trainer_clients/<int:trainer_id>', methods=['GET'])
+def get_assigned_clients(trainer_id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    try:
+        # Join the trainer_clients table with clients table to get client information
+        cursor.execute("""
+            SELECT 
+                c.id,
+                c.first_name,
+                c.last_name,
+                c.age,
+                c.gender,
+                c.hometown,
+                c.fitness_goals
+            FROM trainer_clients tc
+            JOIN clients c ON tc.id = c.id
+            WHERE tc.trainer_id = %s
+            ORDER BY c.last_name, c.first_name
+        """, (trainer_id,))
+        
+        clients = cursor.fetchall()
+        
+        # Log success
+        print(f"Retrieved {len(clients)} assigned clients for trainer {trainer_id}")
+        
+        return jsonify({"success": True, "clients": clients}), 200
+    
+    except Exception as e:
+        # Handle errors properly
+        print(f"Error retrieving assigned clients for trainer {trainer_id}: {str(e)}")
+        return jsonify({"success": False, "error": "Failed to retrieve assigned clients"}), 500
+    
+    finally:
+        # Always close the cursor
+        cursor.close()
 
 
 

@@ -3,6 +3,7 @@ import Message from "../Message/Message";
 import "./messagetable.css";
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
+import { ErrorDialog, SuccessDialog } from '../dialogs';
 
 function MessageTable() {
   const [contacts, setContacts] = useState([]);
@@ -149,6 +150,30 @@ function MessageTable() {
     }
   };
 
+  const handleAssignTrainer = async () => {
+    if (!selectedContact) return;
+    
+    try {
+      await axios.post(
+        `http://127.0.0.1:5000/api/v1/trainer_clients/${userId}`,
+        {
+          trainer_id: selectedContact.trainer_id,
+          client_id: userId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      // Show success message
+      SuccessDialog("Trainer assigned successfully!");
+    } catch (error) {
+      ErrorDialog("Error assigning trainer:", error);
+    }
+  };
+
   if (loading) {
     return <div className="loading-indicator">Loading contacts...</div>;
   }
@@ -200,22 +225,26 @@ function MessageTable() {
         )}
       </div>
               <div className="message-input-container">
-                <form onSubmit={handleSubmit}>
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder={`Message to ${selectedContact.first_name}...`}
-                    />
+                <form onSubmit={handleSubmit} className="message-form">
+                  <input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type a message..."
+                    className="message-input"
+                  />
+                  <button type="submit" className="send-button">
+                    Send
+                  </button>
+                  {userType === 'client' && (
                     <button 
-                      type="submit" 
-                      className="btn btn-primary"
+                      type="button" 
+                      className="assign-trainer-button"
+                      onClick={handleAssignTrainer}
                     >
-                      Send
+                      Assign as Trainer
                     </button>
-                  </div>
+                  )}
                 </form>
               </div>
             </>
