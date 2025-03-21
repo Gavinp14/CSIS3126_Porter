@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import PopupModal from '../PopupModal/PopupModal';
 import "./clientcard.css";
+import {useNavigate} from 'react-router-dom';
 
 function ClientCard({first_name, last_name, age, gender, hometown, fitness_goals}) {
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -14,10 +16,7 @@ function ClientCard({first_name, last_name, age, gender, hometown, fitness_goals
         <div className="client-card__actions">
           <button 
             className="btn btn-primary"
-            onClick={(e) => {
-              e.stopPropagation();
-              alert('Message button clicked');
-            }}
+            onClick={() => navigate(`/trainer/messages`)}
           >
             Message
           </button>
@@ -35,8 +34,9 @@ function ClientCard({first_name, last_name, age, gender, hometown, fitness_goals
 
       <PopupModal isOpen={showModal} onClose={() => setShowModal(false)}>
         <div className="modal-body">
-          <h2>{first_name} {last_name}</h2>
+          <h2>{}</h2>
           <div className="client-details">
+            <p><strong>Name:</strong> {first_name} {last_name}</p>
             <p><strong>Age:</strong> {age}</p>
             <p><strong>Gender:</strong> {gender}</p>
             <p><strong>Location:</strong> {hometown}</p>

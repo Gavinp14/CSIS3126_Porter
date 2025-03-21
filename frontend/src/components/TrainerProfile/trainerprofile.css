@@ -3,6 +3,12 @@
     max-width: 800px;
     margin: 0 auto;
   }
+
+  .bw-logo{
+    margin-bottom: 100px;
+    width: 100px;
+    height: 100px;
+  }
   
   .form-container {
     margin-top: 20px;

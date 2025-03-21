@@ -77,11 +77,11 @@ function LoginComponent() {
   };
 
   return (
-    <div className="main-container d-flex flex-column justify-content-center align-items-center vh-100">
+    <div className="main-container d-flex flex-column justify-content-center align-items-center vh-75">
       <img
-        src="/blackandwhitetrans.png"
+        src="/Trainer Pro.Prelim-01.png"
         alt="logo"
-        className="bw-logo mb-4"
+        className="bw-logo"
       />
       <div className="login-container p-4 rounded shadow-lg w-100" style={{ maxWidth: '500px', backgroundColor: '#fff' }}>
         <h1 className="text-center mb-4">Login</h1>

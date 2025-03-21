@@ -71,7 +71,7 @@ function SignupComponent() {
   return (
     <div className="main-container d-flex flex-column justify-content-center align-items-center">
       <img
-        src="/blackandwhitetrans.png"
+        src="/Trainer Pro.Prelim-01.png"
         alt="logo"
         className="bw-logo"
       />

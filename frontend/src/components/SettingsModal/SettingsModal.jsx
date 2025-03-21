@@ -99,10 +99,6 @@ function SettingsModal({ isOpen, onClose }) {
               <span>{registerType}</span>
             </div>
             <div className="info-row">
-              <label>User ID:</label>
-              <span>{userId}</span>
-            </div>
-            <div className="info-row">
               <label>First Name:</label>
               <span>{data.first_name || "n/a"}</span>
             </div>
@@ -153,15 +149,9 @@ function SettingsModal({ isOpen, onClose }) {
           </div>
         )}
 
-        <div className="action-buttons">
-          <button className="logout-btn" onClick={() => navigate('/')}>
+        <div className="action-buttons d-flex justify-content-center">
+          <button className="logout-btn btn btn-danger" onClick={() => navigate('/')}>
             Logout
-          </button>
-          <button 
-            className="delete-account-btn" 
-            onClick={() => console.log(`Delete account requested for ${registerType} ID: ${userId}`)}
-          >
-            Delete Account
           </button>
         </div>
       </div>

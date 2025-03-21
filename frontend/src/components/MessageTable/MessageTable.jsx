@@ -13,6 +13,8 @@ function MessageTable() {
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [userType, setUserType] = useState('client'); // Default to client
+  const [hasAssignedTrainer, setHasAssignedTrainer] = useState(false);
+  const [isTrainerAssigned, setIsTrainerAssigned] = useState(false);
   
   const { getUserId, getToken } = useAuth();
   const userId = getUserId();
@@ -56,6 +58,11 @@ function MessageTable() {
         
         // Store the user type for later use in the component
         setUserType(isTrainer ? 'trainer' : 'client');
+        
+        // Check if the user has already been assigned a trainer
+        const assignedTrainer = response.data.assignedTrainer;
+        setHasAssignedTrainer(!!assignedTrainer);
+        setIsTrainerAssigned(!!assignedTrainer);
         
       } catch (error) {
         console.error("Error fetching contacts:", error);
@@ -183,7 +190,7 @@ function MessageTable() {
       <div className="row h-100">
         {/* Contacts sidebar */}
         <div className="col-sm-4 contacts-sidebar">
-          <h2 className="sidebar-title">My Trainers</h2>
+          <h2 className="sidebar-title mt-4">My Trainers</h2>
           <div className="contacts-list">
             {contacts.length > 0 ? (
               contacts.map((trainer) => (
@@ -205,7 +212,7 @@ function MessageTable() {
         <div className="col-sm-8 messages-section">
           {selectedContact ? (
             <>
-              <h3 className="conversation-title">
+              <h3 className="conversation-title mt-4">
                 Conversation with {selectedContact.first_name} {selectedContact.last_name}
               </h3>
               <div className="conversation-container">
@@ -233,18 +240,29 @@ function MessageTable() {
                     placeholder="Type a message..."
                     className="message-input"
                   />
-                  <button type="submit" className="send-button">
-                    Send
-                  </button>
-                  {userType === 'client' && (
-                    <button 
-                      type="button" 
-                      className="assign-trainer-button"
-                      onClick={handleAssignTrainer}
-                    >
-                      Assign as Trainer
+                  <div className="message-buttons">
+                    <button type="submit" className="send-button btn btn-primary">
+                      Send
                     </button>
-                  )}
+                    {userType === 'client' && !hasAssignedTrainer && (
+                      <button 
+                        type="button" 
+                        className={`assign-trainer-button ${isTrainerAssigned ? 'assigned' : ''}`}
+                        onClick={handleAssignTrainer}
+                      >
+                        Assign as Trainer
+                      </button>
+                    )}
+                    {userType === 'client' && hasAssignedTrainer && isTrainerAssigned && (
+                      <button 
+                        type="button" 
+                        className="assign-trainer-button btn btn-success"
+                        onClick={handleAssignTrainer}
+                      >
+                        Remove Trainer
+                      </button>
+                    )}
+                  </div>
                 </form>
               </div>
             </>
