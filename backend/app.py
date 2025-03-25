@@ -376,6 +376,24 @@ def get_assigned_clients(trainer_id):
         cursor.close()
 
 
+#assign program to client
+@app.route('/api/v1/assign-programs', methods=['POST'])
+def assign_programs():
+    data = request.get_json()
+    client_id = data.get('client_id')
+    program_id = data.get('program_id')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO client_programs (client_id, program_id) VALUES (%s, %s)",
+        (client_id, program_id)
+    )
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"message": "Program added successfully"}), 201
+
+
 
 
 

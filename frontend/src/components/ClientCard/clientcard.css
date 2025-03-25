@@ -98,3 +98,12 @@
 .client-details p {
   margin: 0.5rem 0;
 }
+
+.program-dropdown {
+  margin-top: 1rem;
+}
+
+.program-item {
+  margin-bottom: 0.5rem;
+  margin-left: 1rem;
+}
