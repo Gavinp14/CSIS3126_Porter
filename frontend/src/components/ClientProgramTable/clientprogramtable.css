@@ -1,0 +1,19 @@
+.client-program-table {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin: 20px;
+}
+
+.client-program-table h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.alert {
+  margin: 20px 0;
+}
+
+.btn-outline-danger {
+  margin-top: 10px;
+} 

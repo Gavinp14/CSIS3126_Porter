@@ -1,28 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import './programtable.css';
+import './clientprogramtable.css';
 import ProgramCard from '../ProgramCard/ProgramCard';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 
-function ProgramTable() {
+function ClientProgramTable() {
   const [programs, setPrograms] = useState([]);
-  const { getUserId, getToken } = useAuth();
+  const { getUserId, getToken, getUserRole } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchPrograms = async () => {
+    const fetchClientPrograms = async () => {
       setIsLoading(true);
       try {
-        const userId = getUserId();
+        const clientId = getUserId();
         const token = getToken();
+        const role = getUserRole();
         
-        if (!userId || !token) {
+        if (!clientId || !token) {
           throw new Error("Authentication information missing");
         }
 
+        if (role !== 'client') {
+          throw new Error("Only clients can view programs");
+        }
+
         const response = await axios.get(
-          `http://127.0.0.1:5000/api/v1/programs/${userId}`,
+          `http://127.0.0.1:5000/api/v1/client_programs/${clientId}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -31,9 +36,12 @@ function ProgramTable() {
           }
         );
 
-        console.log("API Response:", response.data);
-        setPrograms(response.data.programs || []);
-        setError(null);
+        if (response.data) {
+          setPrograms(response.data);
+          setError(null);
+        } else {
+          throw new Error("No programs found");
+        }
       } catch (error) {
         console.error("Error fetching programs: ", error);
         if (error.response) {
@@ -49,15 +57,15 @@ function ProgramTable() {
       }
     };
 
-    fetchPrograms();
-  }, [getUserId, getToken]);
+    fetchClientPrograms();
+  }, [getUserId, getToken, getUserRole]);
 
   return (
-    <div className='program-table d-flex flex-column'>
-      <h2 className="text-center mb-4">Training Programs</h2>
+    <div className='client-program-table d-flex flex-column'>
+      <h2 className="text-center mb-4">My Programs</h2>
 
       {isLoading ? (
-        <p className="text-center">Loading programs...</p>
+        <p className="text-center">Loading your programs...</p>
       ) : error ? (
         <div className="alert alert-danger">
           <p>{error}</p>
@@ -77,10 +85,12 @@ function ProgramTable() {
                 name={program.program_name}
                 description={program.program_description}
                 link={program.program_link}
+                assignedDate={program.assigned_date}
+                programId={program.program_id}
               />
             ))
           ) : (
-            <p className="text-center">No programs available</p>
+            <p className="text-center">You don't have any assigned programs yet</p>
           )}
         </div>
       )}
@@ -88,4 +98,4 @@ function ProgramTable() {
   );
 }
 
-export default ProgramTable;
+export default ClientProgramTable;

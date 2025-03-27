@@ -3,14 +3,14 @@ import PopupModal from "../PopupModal/PopupModal";
 import "./clientcard.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import {ErrorDialog, SuccessDialog} from '../dialogs';
 
-function ClientCard({ first_name, last_name, age, gender, hometown, fitness_goals, client_id }) {
+function ClientCard({ client_id, first_name, last_name, age, gender, hometown, fitness_goals}) {
   const [showModal, setShowModal] = useState(false);
   const { getUserId, getToken } = useAuth();
   const [programs, setPrograms] = useState([]);
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [client, setClient] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,13 +32,13 @@ function ClientCard({ first_name, last_name, age, gender, hometown, fitness_goal
         });
 
         if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
+          throw new ErrorDialog(`Error: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
         setPrograms(data.programs || []);
       } catch (error) {
-        console.error("Error fetching programs: ", error);
+        ErrorDialog("Error fetching programs");
         setPrograms([]);
       } finally {
         setIsLoading(false);
@@ -50,20 +50,19 @@ function ClientCard({ first_name, last_name, age, gender, hometown, fitness_goal
 
   // Allow only one program to be selected at a time
   const handleProgramSelection = (programId) => {
-    console.log(programId);
+    console.log("Selected Program ID:", programId);
     setSelectedProgram(programId);
-  };
-
-  const handleClientSelection = (clientId) => {
-    console.log(clientId);
-    setClient(clientId);
   };
 
   const handleAssignPrograms = async () => {
     const token = getToken();
 
+    // Log client_id and selectedProgram
+    console.log("Assigning Program - Client ID:", client_id);
+    console.log("Assigning Program - Selected Program ID:", selectedProgram);
+
     if (!client_id || !selectedProgram || !token) {
-      alert("Please select a program before assigning.");
+      ErrorDialog("Please select a program before assigning.");
       return;
     }
 
@@ -75,7 +74,7 @@ function ClientCard({ first_name, last_name, age, gender, hometown, fitness_goal
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          client_id: client_id,
+          client_id: client_id, // Use the prop directly
           program_id: selectedProgram,
         }),
       });
@@ -84,11 +83,11 @@ function ClientCard({ first_name, last_name, age, gender, hometown, fitness_goal
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
 
-      alert("Program assigned successfully!");
+      SuccessDialog("Program assigned successfully!");
       setSelectedProgram(null); // Clear selection after assignment
     } catch (error) {
       console.error("Error assigning programs: ", error);
-      alert("Failed to assign program. Please try again.");
+      ErrorDialog("Failed to assign program. Please try again.");
     }
   };
 
@@ -108,7 +107,6 @@ function ClientCard({ first_name, last_name, age, gender, hometown, fitness_goal
             className="btn btn-secondary"
             onClick={(e) => {
               e.stopPropagation();
-              handleClientSelection(client_id);
               setShowModal(true);
             }}
           >

@@ -10,12 +10,12 @@ function SettingsModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { getUserId, getToken, getRegisterType } = useAuth();
+  const { getUserId, getToken, getUserRole } = useAuth();
 
   // Get fresh auth values on every render
   const userId = getUserId();
   const token = getToken();
-  const registerType = getRegisterType();
+  const registerType = getUserRole();
   console.log(data);
 
   // Fetch data when modal opens or auth values change

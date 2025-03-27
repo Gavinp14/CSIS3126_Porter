@@ -394,6 +394,23 @@ def assign_programs():
     return jsonify({"message": "Program added successfully"}), 201
 
 
+#get all programs assigned to a client
+@app.route('/api/v1/client_programs/<int:client_id>', methods=['GET'])
+def get_client_programs(client_id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    try:
+        cursor.execute("""
+            SELECT p.*
+            FROM programs p
+            JOIN client_programs cp ON p.program_id = cp.program_id
+            WHERE cp.client_id = %s
+        """, (client_id,))
+        programs = cursor.fetchall()
+        return jsonify(programs)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
 
 
 
