@@ -11,14 +11,9 @@ function ClientDashboard() {
       <ClientNavbar />
       <div className="container pt-5">
         <div className="row">
-          <div className="col-sm-6">
-            <ProgressChart />
-          </div>
-          <div className="col-sm-6">
             <button className="btn btn-primary w-100 mb-3" onClick={() => setIsOpen(true)}>Edit Client Profile</button>
             <ClientProfile isOpen={isOpen} onClose={() => setIsOpen(false)}/>
-            <TrainerInfo />
-          </div>
+            <ProgressChart />
         </div>
       </div>
     </>

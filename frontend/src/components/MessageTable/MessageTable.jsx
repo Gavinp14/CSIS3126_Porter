@@ -12,7 +12,7 @@ function MessageTable() {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
-  const [userType, setUserType] = useState('client'); // Default to client
+  const [userType, setUserType] = useState(null);
   const [hasAssignedTrainer, setHasAssignedTrainer] = useState(false);
   const [isTrainerAssigned, setIsTrainerAssigned] = useState(false);
   
@@ -20,50 +20,53 @@ function MessageTable() {
   const userId = getUserId();
   const token = getToken();
 
-  // Note: Since getUserRole is not available, just use client mode
-  // Later you can update the AuthContext to include getUserRole
-  
-  // Fetch trainers when component mounts
+  // Fetch contacts when component mounts
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        // Try to determine if user is a trainer by checking localStorage
-        const userType = localStorage.getItem('registertype') || 'client';
-        const isTrainer = userType === 'trainer';
+        // Determine user type from localStorage
+        const storedUserType = localStorage.getItem('registertype') || 'client';
+        const isTrainer = storedUserType === 'trainer';
         
-        console.log(`User appears to be a ${isTrainer ? 'trainer' : 'client'}`);
-        
-        // Use the appropriate endpoint based on user type
-        const endpoint = isTrainer
-          ? `http://127.0.0.1:5000/api/v1/clientmessages/${userId}`
-          : `http://127.0.0.1:5000/api/v1/trainermessages/${userId}`;
-        
-        console.log(`Fetching contacts from: ${endpoint}`);
-        
-        const response = await axios.get(endpoint, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        
-        console.log("Response data:", response.data);
-        
-        // Set the appropriate contacts based on user type
-        if (isTrainer) {
-          setContacts(response.data.clients || []);
-        } else {
-          setContacts(response.data.trainers || []);
-        }
-        
-        // Store the user type for later use in the component
+        // Set the user type state
         setUserType(isTrainer ? 'trainer' : 'client');
         
-        // Check if the user has already been assigned a trainer
-        const assignedTrainer = response.data.assignedTrainer;
-        setHasAssignedTrainer(!!assignedTrainer);
-        setIsTrainerAssigned(!!assignedTrainer);
+        console.log(`User type: ${isTrainer ? 'trainer' : 'client'}`);
         
+        // Fetch both trainer and client contacts
+        if (isTrainer) {
+          // If user is a trainer, fetch their clients
+          const clientsResponse = await axios.get(
+            `http://127.0.0.1:5000/api/v1/clientmessages/${userId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          
+          console.log("Trainer's clients:", clientsResponse.data);
+          setContacts(clientsResponse.data.clients || []);
+        } else {
+          // If user is a client, fetch trainers
+          const trainersResponse = await axios.get(
+            `http://127.0.0.1:5000/api/v1/trainermessages/${userId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          
+          console.log("Client's trainers:", trainersResponse.data);
+          setContacts(trainersResponse.data.trainers || []);
+          
+          // Check if the client has already been assigned a trainer
+          setHasAssignedTrainer(!!trainersResponse.data.assignedTrainer);
+          setIsTrainerAssigned(!!trainersResponse.data.assignedTrainer);
+        }
       } catch (error) {
         console.error("Error fetching contacts:", error);
         setContacts([]);
@@ -79,24 +82,27 @@ function MessageTable() {
     }
   }, [userId, token]);
 
-  // Handle trainer selection
+  // Handle contact selection for both trainers and clients
   const handleContactClick = (contact) => {
-    console.log("Selected trainer:", contact);
+    console.log("Selected contact:", contact);
     setSelectedContact(contact);
     
-    // Fetch messages for the selected trainer
-    if (userId && contact.trainer_id) {
-      fetchMessages(userId, contact.trainer_id);
-    }
+    // Determine the appropriate IDs based on user type
+    const currentUserId = userId;
+    const contactId = userType === 'trainer' ? contact.client_id : contact.trainer_id;
+    
+    fetchMessages(currentUserId, contactId);
   };
 
-  // Fetch messages between user and trainer
-  const fetchMessages = async (userId, trainerId) => {
+  // Fetch messages between the current user and the selected contact
+  const fetchMessages = async (userId, contactId) => {
     setLoadingMessages(true);
     try {
-      console.log(`Fetching messages between ${userId} and ${trainerId}`);
+      console.log(`Fetching messages between ${userId} and ${contactId}`);
+      
+      // This endpoint should work for both trainer-client and client-trainer communications
       const response = await axios.get(
-        `http://127.0.0.1:5000/api/v1/messages/thread/${userId}/${trainerId}`,
+        `http://127.0.0.1:5000/api/v1/messages/thread/${userId}/${contactId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -104,31 +110,32 @@ function MessageTable() {
           },
         }
       );
-      console.log("Messages response:", response.data);
       
-      // Ensure we're using the correct messages data from the response
       const messagesData = response.data.messages || [];
-      console.log("Parsed messages:", messagesData);
-      
+      console.log("Received messages:", messagesData);
       setMessages(messagesData);
     } catch (error) {
       console.error("Error fetching messages:", error);
-      console.error("Error details:", error.response || error.message);
       setMessages([]);
     } finally {
       setLoadingMessages(false);
     }
   };
 
-  // Send a message
+  // Send a message to the selected contact
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedContact) return;
 
     try {
+      // Determine receiver ID based on user type
+      const receiverId = userType === 'trainer' 
+        ? selectedContact.client_id 
+        : selectedContact.trainer_id;
+
       console.log("Sending message:", {
         sender_id: userId,
-        receiver_id: selectedContact.trainer_id,
+        receiver_id: receiverId,
         message_text: newMessage
       });
       
@@ -136,7 +143,7 @@ function MessageTable() {
         "http://127.0.0.1:5000/api/v1/messages",
         {
           sender_id: userId,
-          receiver_id: selectedContact.trainer_id,
+          receiver_id: receiverId,
           message_text: newMessage
         },
         {
@@ -147,16 +154,16 @@ function MessageTable() {
         }
       );
       
-      // Clear input and refresh messages
       setNewMessage("");
-      fetchMessages(userId, selectedContact.trainer_id);
+      fetchMessages(userId, receiverId);
       
     } catch (error) {
       console.error("Error sending message:", error);
-      console.error("Error details:", error.response || error.message);
+      ErrorDialog("Failed to send message");
     }
   };
 
+  // Handle assigning a trainer (only for clients)
   const handleAssignTrainer = async () => {
     if (!selectedContact) return;
     
@@ -174,10 +181,13 @@ function MessageTable() {
           },
         }
       );
-      // Show success message
+      
+      setHasAssignedTrainer(true);
+      setIsTrainerAssigned(true);
       SuccessDialog("Trainer assigned successfully!");
     } catch (error) {
-      ErrorDialog("Error assigning trainer:", error);
+      console.error("Error assigning trainer:", error);
+      ErrorDialog("Failed to assign trainer");
     }
   };
 
@@ -190,20 +200,28 @@ function MessageTable() {
       <div className="row h-100">
         {/* Contacts sidebar */}
         <div className="col-sm-4 contacts-sidebar">
-          <h2 className="sidebar-title mt-4">My Trainers</h2>
+          <h2 className="sidebar-title mt-4">
+            {userType === 'trainer' ? 'My Clients' : 'My Trainers'}
+          </h2>
           <div className="contacts-list">
             {contacts.length > 0 ? (
-              contacts.map((trainer) => (
+              contacts.map((contact) => (
                 <div
-                  key={trainer.trainer_id}
-                  className={`contact-item ${selectedContact?.trainer_id === trainer.trainer_id ? 'active' : ''}`}
-                  onClick={() => handleContactClick(trainer)}
+                  key={userType === 'trainer' ? contact.client_id : contact.trainer_id}
+                  className={`contact-item ${
+                    selectedContact && 
+                    selectedContact[userType === 'trainer' ? 'client_id' : 'trainer_id'] === 
+                    contact[userType === 'trainer' ? 'client_id' : 'trainer_id'] ? 'active' : ''
+                  }`}
+                  onClick={() => handleContactClick(contact)}
                 >
-                  {trainer.first_name} {trainer.last_name}
+                  {contact.first_name} {contact.last_name}
                 </div>
               ))
             ) : (
-              <p className="no-contacts">No trainers found.</p>
+              <p className="no-contacts">
+                {userType === 'trainer' ? 'No clients found.' : 'No trainers found.'}
+              </p>
             )}
           </div>
         </div>
@@ -225,12 +243,12 @@ function MessageTable() {
                       message={msg.message_text}
                       timestamp={msg.timestamp || new Date().toISOString()}
                       isSender={parseInt(msg.sender_id) === parseInt(userId)}
-            />
-          ))
-        ) : (
+                    />
+                  ))
+                ) : (
                   <p className="no-messages">No messages yet. Start a conversation!</p>
-        )}
-      </div>
+                )}
+              </div>
               <div className="message-input-container">
                 <form onSubmit={handleSubmit} className="message-form">
                   <input
@@ -241,26 +259,31 @@ function MessageTable() {
                     className="message-input"
                   />
                   <div className="message-buttons">
-                    <button type="submit" className="send-button btn btn-primary">
+                    <button type="submit" className="send-button">
                       Send
                     </button>
-                    {userType === 'client' && !hasAssignedTrainer && (
-                      <button 
-                        type="button" 
-                        className={`assign-trainer-button ${isTrainerAssigned ? 'assigned' : ''}`}
-                        onClick={handleAssignTrainer}
-                      >
-                        Assign as Trainer
-                      </button>
-                    )}
-                    {userType === 'client' && hasAssignedTrainer && isTrainerAssigned && (
-                      <button 
-                        type="button" 
-                        className="assign-trainer-button btn btn-success"
-                        onClick={handleAssignTrainer}
-                      >
-                        Remove Trainer
-                      </button>
+                    {/* Only show assign/remove trainer buttons for clients */}
+                    {userType === 'client' && (
+                      <>
+                        {!hasAssignedTrainer && (
+                          <button 
+                            type="button" 
+                            className="assign-trainer-button"
+                            onClick={handleAssignTrainer}
+                          >
+                            Assign as Trainer
+                          </button>
+                        )}
+                        {hasAssignedTrainer && isTrainerAssigned && (
+                          <button 
+                            type="button" 
+                            className="assign-trainer-button assigned"
+                            onClick={handleAssignTrainer}
+                          >
+                            Remove Trainer
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </form>
@@ -268,7 +291,12 @@ function MessageTable() {
             </>
           ) : (
             <div className="no-selection">
-              <p>Select a trainer to start messaging</p>
+              <p>
+                {userType === 'trainer' 
+                  ? 'Select a client to start messaging' 
+                  : 'Select a trainer to start messaging'
+                }
+              </p>
             </div>
           )}
         </div>
