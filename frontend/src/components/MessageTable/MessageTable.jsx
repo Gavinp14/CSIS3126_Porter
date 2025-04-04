@@ -16,26 +16,22 @@ function MessageTable() {
   const [hasAssignedTrainer, setHasAssignedTrainer] = useState(false);
   const [isTrainerAssigned, setIsTrainerAssigned] = useState(false);
   
-  const { getUserId, getToken } = useAuth();
+  const { getUserId, getToken, getUserRole } = useAuth();
   const userId = getUserId();
   const token = getToken();
+  const userRole = getUserRole();
 
   // Fetch contacts when component mounts
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        // Determine user type from localStorage
-        const storedUserType = localStorage.getItem('registertype') || 'client';
-        const isTrainer = storedUserType === 'trainer';
-        
-        // Set the user type state
+        const isTrainer = userRole === 'trainer';
         setUserType(isTrainer ? 'trainer' : 'client');
         
-        console.log(`User type: ${isTrainer ? 'trainer' : 'client'}`);
+        console.log(`User type: ${isTrainer ? 'trainer' : 'client'}, userId: ${userId}`);
         
-        // Fetch both trainer and client contacts
         if (isTrainer) {
-          // If user is a trainer, fetch their clients
+          console.log('Fetching clients for trainer...');
           const clientsResponse = await axios.get(
             `http://127.0.0.1:5000/api/v1/clientmessages/${userId}`,
             {
@@ -46,10 +42,22 @@ function MessageTable() {
             }
           );
           
-          console.log("Trainer's clients:", clientsResponse.data);
-          setContacts(clientsResponse.data.clients || []);
+          console.log("Raw trainer's clients response:", clientsResponse.data);
+          
+          if (clientsResponse.data.clients) {
+            // Ensure each client has the correct ID field
+            const processedClients = clientsResponse.data.clients.map(client => ({
+              ...client,
+              client_id: client.id, // Map id to client_id for consistency
+            }));
+            console.log("Processed clients:", processedClients);
+            setContacts(processedClients);
+          } else {
+            console.log("No clients found in response");
+            setContacts([]);
+          }
         } else {
-          // If user is a client, fetch trainers
+          // Client code remains the same
           const trainersResponse = await axios.get(
             `http://127.0.0.1:5000/api/v1/trainermessages/${userId}`,
             {
@@ -62,13 +70,11 @@ function MessageTable() {
           
           console.log("Client's trainers:", trainersResponse.data);
           setContacts(trainersResponse.data.trainers || []);
-          
-          // Check if the client has already been assigned a trainer
           setHasAssignedTrainer(!!trainersResponse.data.assignedTrainer);
           setIsTrainerAssigned(!!trainersResponse.data.assignedTrainer);
         }
       } catch (error) {
-        console.error("Error fetching contacts:", error);
+        console.error("Error fetching contacts:", error.response || error);
         setContacts([]);
       } finally {
         setLoading(false);
@@ -80,18 +86,24 @@ function MessageTable() {
     } else {
       setLoading(false);
     }
-  }, [userId, token]);
+  }, [userId, token, userRole]);
 
-  // Handle contact selection for both trainers and clients
+  // Handle contact selection (works for both trainers and clients)
   const handleContactClick = (contact) => {
     console.log("Selected contact:", contact);
     setSelectedContact(contact);
     
-    // Determine the appropriate IDs based on user type
-    const currentUserId = userId;
-    const contactId = userType === 'trainer' ? contact.client_id : contact.trainer_id;
-    
-    fetchMessages(currentUserId, contactId);
+    if (userType === 'trainer') {
+      // If trainer, use client_id from contact
+      const clientId = contact.client_id;
+      console.log(`Trainer selecting client ${clientId}`);
+      fetchMessages(userId, clientId);
+    } else {
+      // If client, use trainer_id from contact
+      const trainerId = contact.trainer_id;
+      console.log(`Client selecting trainer ${trainerId}`);
+      fetchMessages(userId, trainerId);
+    }
   };
 
   // Fetch messages between the current user and the selected contact
@@ -122,13 +134,12 @@ function MessageTable() {
     }
   };
 
-  // Send a message to the selected contact
+  // Send a message (works for both trainers and clients)
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedContact) return;
 
     try {
-      // Determine receiver ID based on user type
       const receiverId = userType === 'trainer' 
         ? selectedContact.client_id 
         : selectedContact.trainer_id;
@@ -154,6 +165,7 @@ function MessageTable() {
         }
       );
       
+      // Clear input and refresh messages
       setNewMessage("");
       fetchMessages(userId, receiverId);
       
@@ -205,19 +217,23 @@ function MessageTable() {
           </h2>
           <div className="contacts-list">
             {contacts.length > 0 ? (
-              contacts.map((contact) => (
-                <div
-                  key={userType === 'trainer' ? contact.client_id : contact.trainer_id}
-                  className={`contact-item ${
-                    selectedContact && 
-                    selectedContact[userType === 'trainer' ? 'client_id' : 'trainer_id'] === 
-                    contact[userType === 'trainer' ? 'client_id' : 'trainer_id'] ? 'active' : ''
-                  }`}
-                  onClick={() => handleContactClick(contact)}
-                >
-                  {contact.first_name} {contact.last_name}
-                </div>
-              ))
+              contacts.map((contact) => {
+                const contactId = userType === 'trainer' ? contact.client_id : contact.trainer_id;
+                const isActive = selectedContact && 
+                  (userType === 'trainer' 
+                    ? selectedContact.client_id === contactId
+                    : selectedContact.trainer_id === contactId);
+                
+                return (
+                  <div
+                    key={contactId}
+                    className={`contact-item ${isActive ? 'active' : ''}`}
+                    onClick={() => handleContactClick(contact)}
+                  >
+                    {contact.first_name} {contact.last_name}
+                  </div>
+                );
+              })
             ) : (
               <p className="no-contacts">
                 {userType === 'trainer' ? 'No clients found.' : 'No trainers found.'}

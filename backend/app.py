@@ -248,7 +248,6 @@ def get_message_thread_generic(user_id, contact_id):
 
 # Get all trainers that a client has messaged
 @app.route('/api/v1/trainermessages/<int:user_id>', methods=['GET'])
-@jwt_required()
 def get_trainers_contacts(user_id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("""
@@ -266,42 +265,32 @@ def get_trainers_contacts(user_id):
     
     return jsonify({"trainers": trainers_messaged}), 200
 
-@app.route('/api/v1/clientmessages/<int:trainer_id>', methods=['GET'])
-def get_clients_contacts(trainer_id):
-    # Get database cursor
+@app.route('/api/v1/clientmessages/<int:user_id>', methods=['GET'])
+def get_clients_contacts(user_id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     
     try:
-        # Modified query to correctly identify clients who have interacted with this trainer
-        # This ensures we only get clients (not other trainers) and handles both directions of communication
         cursor.execute("""
-            SELECT DISTINCT
-                c.client_id,
-                c.first_name,
-                c.last_name,
-                MAX(m.timestamp) as last_message_time
-            FROM clients c
-            JOIN messages m ON (c.client_id = m.sender_id AND m.receiver_id = %s) 
-                           OR (c.client_id = m.receiver_id AND m.sender_id = %s)
-            WHERE c.client_id != %s
-            GROUP BY c.client_id, c.first_name, c.last_name
-            ORDER BY last_message_time DESC
-        """, (trainer_id, trainer_id, trainer_id))
+            SELECT DISTINCT 
+                c.id,
+                c.first_name, 
+                c.last_name
+            FROM messages m
+            JOIN clients c ON (m.sender_id = c.id OR m.receiver_id = c.id)
+            WHERE (m.sender_id = %s OR m.receiver_id = %s)
+                AND c.id != %s
+            ORDER BY c.last_name, c.first_name
+        """, (user_id, user_id, user_id))
         
         clients = cursor.fetchall()
+        print(f"Found {len(clients)} clients for trainer {user_id}")
+        return jsonify({"clients": clients}), 200
         
-        # Log success without exposing all client data
-        print(f"Successfully retrieved {len(clients)} clients for trainer {trainer_id}")
-        
-        return jsonify({"success": True, "clients": clients}), 200
-    
     except Exception as e:
-        # Handle errors properly
-        print(f"Error retrieving clients for trainer {trainer_id}: {str(e)}")
-        return jsonify({"success": False, "error": "Failed to retrieve clients"}), 500
-    
+        print(f"Error in get_clients_contacts: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+        
     finally:
-        # Always close the cursor
         cursor.close()
 
 # Send a message (works for both client and trainer)
