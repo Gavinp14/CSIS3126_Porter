@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "pytest": "^1.0.0",
     "react-bootstrap": "^2.10.8",
     "recharts": "^2.15.0",
     "redux": "^5.0.1"
