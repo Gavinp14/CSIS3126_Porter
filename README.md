@@ -1,5 +1,4 @@
-# Project Name
-
+# Trainer Pro
 This project contains a **React frontend** and a **Flask backend**. The backend uses a **virtual environment** and connects to a **local MySQL server** for data storage.
 
 ## Prerequisites
