@@ -2,7 +2,7 @@
 
 This project contains a **React frontend** and a **Flask backend**. The backend uses a **virtual environment** and connects to a **local MySQL server** for data storage.
 
-## 🧾 Prerequisites
+## Prerequisites
 
 Make sure you have the following installed on your system:
 
@@ -16,15 +16,23 @@ Make sure you have the following installed on your system:
 
 ## Installation
 
-### 1. Clone the Repository
+### Clone the Repository
 
 git clone https://github.com/gavinp14/CSIS3126_Porter
 cd CSIS3126_Porter
 
-## Backend Setup (Flask)
+### Backend Setup (Flask)
 bash
-Copy
-Edit
 cd backend
-python -m venv venv
 source venv/bin/activate   # On Windows use: venv\Scripts\activate
+python app.py 
+
+### Frontend Setup (React)
+cd frontend
+npm start
+
+## Running Tests
+cd backend
+source venv/bin/activate   # On Windows use: venv\Scripts\activate
+python tests.py
+
