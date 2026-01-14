@@ -98,6 +98,7 @@ function CriteriaFilter({ onApplyFilters }) {
               {specialty || 'Select'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
+              <Dropdown.Item eventKey="">Select</Dropdown.Item>
               {['Bodybuilding', 'Weight Loss', 'Powerlifting'].map((specialty, index) => (
                 <Dropdown.Item key={index} eventKey={specialty}>
                   {specialty}
